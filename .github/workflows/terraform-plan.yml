@@ -1,0 +1,16 @@
+name: Terraform-Planner
+
+on: 
+  pull_request:
+    branches:
+      - staging
+
+jobs:
+  plan:
+    name: plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Plan
+        run: tofu plan
