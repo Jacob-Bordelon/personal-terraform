@@ -26,9 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [tofu-init, tofu-plan]
     environment: 'staging'
-    outputs:
-      approved: false
     steps:
       - name: 'Tofu Apply'
-        continue-on-error: true
+        if: github.event.pull_request.merged == true
         run: pwd
