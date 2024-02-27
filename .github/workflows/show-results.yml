@@ -23,14 +23,11 @@ jobs:
           body-includes: <!-- opentofu-bot -->
 
       - name: Create comment
-        if: ${{ steps.fc.outputs.comment-id == '' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.issue.number }}
           edit-mode: replace
           body: |
-            This is a multi-line test comment
-            - With GitHub **Markdown** :sparkles:
-            - Created by [create-or-update-comment][1]
             <!-- opentofu-bot -->
+            Terraform Plan
