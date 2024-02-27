@@ -55,4 +55,4 @@ jobs:
           body: |
             <!-- opentofu-bot -->
             Terraform Plan
-            ${{ PATH }}
+            $PATH
