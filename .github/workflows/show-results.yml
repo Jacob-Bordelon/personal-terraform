@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   find-existing:
+    if: contains(github.event.comment.body, 'send comment')
     runs-on: ubuntu-latest
     steps:
       - name: Find Comment

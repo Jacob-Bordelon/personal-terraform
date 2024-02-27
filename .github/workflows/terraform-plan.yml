@@ -4,6 +4,10 @@ on:
   pull_request:
     paths-ignore:
       - '.github/**'
+    outputs:
+      plan:
+        description: "Output plan"
+        value: ${{ jobs.tofu-plan.outputs. }}
 
 permissions:
   id-token: write
@@ -23,4 +27,36 @@ jobs:
     needs: [tofu-init]
     steps:
       - name: 'Tofu Plan'
-        run: pwd
+        id: plan
+        run: |
+          echo "res=$(pwd)" >> $GITHUB_OUTPUT
+
+    outputs:
+      results: ${{ steps.plan.outputs.res }}
+
+  comment:
+    needs: [tofu-init, tofu-plan]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: <!-- opentofu-bot -->
+
+      - name: Create or Update comment
+        uses: peter-evans/create-or-update-comment@v4
+        - env:
+          PLAN: ${{needs.tofu-plan.outputs.results }}
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.issue.number }}
+          edit-mode: replace
+          body: |
+            <!-- opentofu-bot -->
+            Terraform Plan
+            ```
+            $PLAN
+            ```
