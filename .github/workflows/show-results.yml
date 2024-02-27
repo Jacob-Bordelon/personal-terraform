@@ -1,0 +1,31 @@
+name: Some workflow
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  id-token: write
+  contents: read 
+  pull-requests: write
+  issues: write
+
+jobs:
+  comment:
+    # if: contains(github.event.comment.body, 'tofu plan')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Somethings Running
+        run: |
+          echo "Hello World"
+
+      - name: Add comment to PR
+        env:
+          URL: ${{ github.event.issue.comments_url }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          curl \
+            -X POST $URL \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            --data '{ "body": "blah blah" }'
