@@ -25,6 +25,7 @@ jobs:
   tofu-apply:
     runs-on: ubuntu-latest
     needs: [tofu-init, tofu-plan]
+    environment: staging
     steps:
-      - name: 'Tofu Init'
+      - name: 'Tofu Apply'
         run: pwd
