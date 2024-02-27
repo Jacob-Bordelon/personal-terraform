@@ -30,16 +30,28 @@ jobs:
       - name: 'Tofu Plan'
         id: plan
         run: |
-          RESULT=$(tofu plan)
-          echo "res=$RESULT" >> $GITHUB_OUTPUT
+          echo "::set-output name=text_block::$(tofu plan)"
 
-    outputs:
-      results: ${{ steps.plan.outputs.res }}
+      - name: Store text block as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: text-block
+          path: ${{ steps.plan.outputs.text_block }}
 
   comment:
     needs: [tofu-init, tofu-plan]
     runs-on: ubuntu-latest
     steps:
+      - name: Download text block artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: text-block
+          path: .
+
+      - name: Set environment variable
+        run: |
+          echo "TEXT_BLOCK=$(cat text-block-file.txt)" >> $GITHUB_ENV
+
       - name: Find Comment
         uses: peter-evans/find-comment@v3
         continue-on-error: true
@@ -58,4 +70,4 @@ jobs:
           body: |
             <!-- opentofu-bot -->
             Terraform Plan
-            ${{ needs.tofu-plan.outputs.results }}
+            \`\`\`" $TEXT_BLOCK "\`\`\`
