@@ -50,7 +50,7 @@ jobs:
         env:
           PLAN: ${{needs.tofu-plan.outputs.results }}
         with:
-          template: .github/comment-templates/plan-template.md
+          template: .github/plan-template.md
           vars: |
             foo: this
             bar: that
