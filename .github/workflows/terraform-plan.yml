@@ -31,7 +31,7 @@ jobs:
         id: plan
         run: |
           RESULT=$(tofu plan)
-          echo "res=\"<<EOT $RESULT EOT\" " >> $GITHUB_OUTPUT
+          echo "res=$RESULT"" >> $GITHUB_OUTPUT
 
     outputs:
       results: ${{ steps.plan.outputs.res }}
