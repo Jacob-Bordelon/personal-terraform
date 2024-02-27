@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: opentofu/setup-opentofu@v1
-        runs: tofu init
+      - run: tofu init
   
   tofu-plan:
     runs-on: ubuntu-latest
