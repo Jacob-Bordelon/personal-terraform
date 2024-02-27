@@ -20,8 +20,10 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           body-includes: <!-- terraform-plan-bot -->
-      - run: |
-          echo "${{ toJson(steps.fc.outputs) }}"
+      - name: Found Comment
+        env:
+          CONTEXT: ${{ toJson(steps.fc.outputs) }}
+        run: echo "$CONTEXT"
 
   comment:
     if: contains(github.event.comment.body, 'tofu plan')
@@ -30,7 +32,7 @@ jobs:
       - name: Somethings Running
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
-        run:   echo "$GITHUB_CONTEXT"
+        run:  echo "$GITHUB_CONTEXT"
         
 
       # - name: Add comment to PR
