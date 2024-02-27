@@ -21,7 +21,7 @@ jobs:
           issue-number: ${{ github.event.issue.number }}
           body-includes: <!-- terraform-plan-bot -->
       - run: |
-          echo ${{ toJson(steps.fc.outputs) }}
+          echo "${{ toJson(steps.fc.outputs) }}"
 
   comment:
     if: contains(github.event.comment.body, 'tofu plan')
