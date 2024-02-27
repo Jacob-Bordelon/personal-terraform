@@ -1,4 +1,4 @@
-name: 'Approval - Staging'
+name: 'Plan'
 
 on: pull_request
 
@@ -20,12 +20,4 @@ jobs:
     needs: [tofu-init]
     steps:
       - name: 'Tofu Plan'
-        run: pwd
-
-  tofu-apply:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    needs: [tofu-init, tofu-plan]
-    steps:
-      - name: 'Tofu Apply'
         run: pwd
