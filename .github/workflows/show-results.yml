@@ -22,10 +22,8 @@ jobs:
           body-includes: <!-- terraform-plan---bot -->
 
       - name: Found Comment
-        # if: steps.fc.outputs.comment-id <> null
-        env:
-          CONTEXT: ${{ toJson(steps.fc.outputs) }}
-        run: echo "$CONTEXT"
+        if: steps.fc.outputs.comment-id <> ""
+        run: echo "Do something with that comment"
 
   comment:
     if: contains(github.event.comment.body, 'tofu plan')
