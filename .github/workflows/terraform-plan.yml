@@ -27,7 +27,7 @@ jobs:
       - name: 'Tofu Plan'
         id: plan
         run: |
-          echo "res=$(pwd)" >> $GITHUB_OUTPUT
+          echo "res=$(tofu plan)" >> $GITHUB_OUTPUT
 
     outputs:
       results: ${{ steps.plan.outputs.res }}
