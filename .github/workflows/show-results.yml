@@ -19,56 +19,18 @@ jobs:
         id: fc
         with:
           issue-number: ${{ github.event.issue.number }}
+          comment-author: 'github-actions[bot]'
           body-includes: <!-- opentofu-bot -->
 
       - name: Create comment
         if: ${{ steps.fc.outputs.comment-id == '' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.issue.number }}
+          edit-mode: replace
           body: |
             This is a multi-line test comment
             - With GitHub **Markdown** :sparkles:
             - Created by [create-or-update-comment][1]
             <!-- opentofu-bot -->
-
-      - name: Update comment
-        if: ${{ steps.fc.outputs.comment-id != '' }}
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.issue.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          body: |
-            This is a multi-line test comment
-            - This has been updated
-            <!-- opentofu-bot -->
-
-
-
-      # - name: Found Comment
-      #   if: ${{ steps.fc.outputs.comment-id != '' }}
-      #   run: echo "Do something with that comment"
-
-  # comment:
-  #   if: contains(github.event.comment.body, 'tofu plan')
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Somethings Running
-  #       env:
-  #         GITHUB_CONTEXT: ${{ toJson(github) }}
-  #       run:  echo "$GITHUB_CONTEXT"
-        
-
-      # - name: Add comment to PR
-      #   env:
-      #     URL: ${{ github.event.issue.comments_url }}
-      #     GITHUB_TOKEN: ${{ github.token }}
-      #   run: |
-      #     curl \
-      #       -X POST $URL \
-      #       -H "Content-Type: application/json" \
-      #       -H "Authorization: Bearer $GITHUB_TOKEN" \
-      #       --data '{ "body": "
-      #         This will be a bot
-      #         <!-- terraform-plan-bot -->
-      #       " }'
