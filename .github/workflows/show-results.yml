@@ -19,8 +19,10 @@ jobs:
         id: fc
         with:
           issue-number: ${{ github.event.issue.number }}
-          body-includes: <!-- terraform-plan-bot -->
+          body-includes: <!-- terraform-plan---bot -->
+
       - name: Found Comment
+        # if: steps.fc.outputs.comment-id <> null
         env:
           CONTEXT: ${{ toJson(steps.fc.outputs) }}
         run: echo "$CONTEXT"
