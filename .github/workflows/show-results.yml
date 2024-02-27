@@ -11,21 +11,23 @@ permissions:
   issues: write
 
 jobs:
-  comment:
-    # if: contains(github.event.comment.body, 'tofu plan')
+  find-existing:
     runs-on: ubuntu-latest
     steps:
-      - name: Somethings Running
-        run: |
-          echo "Hello World"
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: <!-- opentofu-bot -->
 
-      - name: Add comment to PR
-        env:
-          URL: ${{ github.event.issue.comments_url }}
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          curl \
-            -X POST $URL \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            --data '{ "body": "blah blah" }'
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.issue.number }}
+          edit-mode: replace
+          body: |
+            <!-- opentofu-bot -->
+            Terraform Plan
