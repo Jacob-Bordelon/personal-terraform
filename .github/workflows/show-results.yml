@@ -11,17 +11,20 @@ permissions:
   issues: write
 
 jobs:
-  # find-existing:
-  #   runs-on: ubuntu-latest
-  #   if: contains(github.event.comment.body, '<!-- terraform-plan-bot -->')
-  #   steps:
-
-  - name: Find Comment
-    uses: peter-evans/find-comment@v3
-    id: fc
-    with:
-      issue-number: 1
-      body-includes: <!-- terraform-plan-bot -->
+  find-existing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body-includes: <!-- terraform-plan-bot -->
+      - run: |
+          echo ${{ steps.fc.outputs.comment-id }}
+          echo ${{ steps.fc.outputs.comment-body }}
+          echo ${{ steps.fc.outputs.comment-author }}
+          echo ${{ steps.fc.outputs.comment-created-at }}
 
   comment:
     if: contains(github.event.comment.body, 'tofu plan')
