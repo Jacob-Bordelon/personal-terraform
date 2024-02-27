@@ -25,7 +25,8 @@ jobs:
   tofu-apply:
     runs-on: ubuntu-latest
     needs: [tofu-init, tofu-plan]
-    environment: staging
+    environment: 'staging'
     steps:
       - name: 'Tofu Apply'
+        if: ${{ success() }}
         run: pwd
