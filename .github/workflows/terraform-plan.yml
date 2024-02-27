@@ -18,6 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: opentofu/setup-opentofu@v1
+      - runs: tofu init
   
   tofu-plan:
     runs-on: ubuntu-latest
@@ -26,7 +27,7 @@ jobs:
       - name: 'Tofu Plan'
         id: plan
         run: |
-          echo "res=$(pwd)" >> $GITHUB_OUTPUT
+          echo "res=$(tofu plan)" >> $GITHUB_OUTPUT
 
     outputs:
       results: ${{ steps.plan.outputs.res }}
