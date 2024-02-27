@@ -1,20 +1,30 @@
-name: Terraform-Planner
+name: 'Approval - Staging'
 
-on: 
-  pull_request:
-    branches:
-      - staging
+on: pull_request
+
+permissions:
+  id-token: write
+  contents: read 
+  pull-requests: write
+  issues: write
 
 jobs:
-  plan:
-    name: plan
-    runs-on: macos-latest
+  tofu-init:
+    runs-on: ubuntu-latest
     steps:
-      - name: install opentofu
-        run: brew install opentofu
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run init
-        run: tofu init
-      - name: Run Plan
-        run: tofu plan
+      - uses: actions/checkout@v3
+      - uses: opentofu/setup-opentofu@v1
+  
+  tofu-plan:
+    runs-on: ubuntu-latest
+    needs: [tofu-init]
+    steps:
+      - name: 'Tofu Plan'
+        run: pwd
+
+  tofu-apply:
+    runs-on: ubuntu-latest
+    needs: [tofu-init, tofu-plan]
+    steps:
+      - name: 'Tofu Init'
+        run: pwd
