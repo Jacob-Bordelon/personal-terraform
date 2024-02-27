@@ -54,6 +54,6 @@ jobs:
           body: |
             <!-- opentofu-bot -->
             Terraform Plan
-            ```
-            $PLAN
+            ```hcl
+            ${{ PLAN }}
             ```
