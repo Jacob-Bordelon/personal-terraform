@@ -3,7 +3,7 @@ name: Some workflow
 on:
   issue_comment:
     types: [created]
-    
+
 permissions:
   id-token: write
   contents: read 
@@ -25,7 +25,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           curl \
-            -X POST $URL 
+            -X POST $URL \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
             --data '{ "body": "blah blah" }'
