@@ -1,8 +1,6 @@
 name: 'Approval - Staging'
 
-on: 
-  pull_request_review:
-    types: [submitted]
+on: pull_request
 
 permissions:
   id-token: write
