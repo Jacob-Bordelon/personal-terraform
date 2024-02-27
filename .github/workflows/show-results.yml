@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   comment:
-    # if: contains(github.event.comment.body, 'tofu plan')
+    if: contains(github.event.comment.body, 'tofu plan')
     runs-on: ubuntu-latest
     steps:
       - name: Somethings Running
@@ -28,4 +28,4 @@ jobs:
             -X POST $URL \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
-            --data '{ "body": "blah blah" }'
+            --data '{ "body": "This will be a bot" }'
