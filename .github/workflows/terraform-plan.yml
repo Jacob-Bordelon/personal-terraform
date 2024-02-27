@@ -4,10 +4,6 @@ on:
   pull_request:
     paths-ignore:
       - '.github/**'
-    outputs:
-      plan:
-        description: "Output plan"
-        value: ${{ jobs.tofu-plan.outputs. }}
 
 permissions:
   id-token: write
