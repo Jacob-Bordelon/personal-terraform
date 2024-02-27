@@ -44,17 +44,21 @@ jobs:
           comment-author: 'github-actions[bot]'
           body-includes: <!-- opentofu-bot -->
 
-      - name: Create or Update comment
-        uses: peter-evans/create-or-update-comment@v4
+      - name: Render template
+        id: template
+        uses: chuhlomin/render-template@v1.4
         env:
           PLAN: ${{needs.tofu-plan.outputs.results }}
+        with:
+          template: .github/comment-templates/plan-template.md
+          vars: |
+            foo: this
+            bar: that
+
+      - name: Create or Update comment
+        uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           edit-mode: replace
-          body: |
-            <!-- opentofu-bot -->
-            Terraform Plan
-            ```hcl
-            ${{ PLAN }}
-            ```
+          body: ${{ steps.template.outputs.result }}
