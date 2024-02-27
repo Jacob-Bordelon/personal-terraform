@@ -16,6 +16,13 @@ jobs:
   #   if: contains(github.event.comment.body, '<!-- terraform-plan-bot -->')
   #   steps:
 
+  - name: Find Comment
+    uses: peter-evans/find-comment@v3
+    id: fc
+    with:
+      issue-number: 1
+      body-includes: <!-- terraform-plan-bot -->
+
   comment:
     if: contains(github.event.comment.body, 'tofu plan')
     runs-on: ubuntu-latest
