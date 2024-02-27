@@ -46,8 +46,6 @@ jobs:
 
       - name: Create or Update comment
         uses: peter-evans/create-or-update-comment@v4
-        env:
-            PATH: template
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
@@ -55,4 +53,4 @@ jobs:
           body: |
             <!-- opentofu-bot -->
             Terraform Plan
-            ${{ PATH }}
+            ${{ needs.tofu-plan.outputs.results }}
