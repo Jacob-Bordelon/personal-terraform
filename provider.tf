@@ -4,11 +4,6 @@ resource "aws_s3_bucket" "temp" {
     bucket = "test"
 }
 
-resource "aws_s3_bucket" "temp2" {
-    bucket = "test2"
-}
-
-
 terraform {
   required_version = ">= 0.12"
   cloud {
