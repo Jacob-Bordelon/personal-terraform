@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: text-block
-          path: ${{ steps.plan.outputs.text_block }}
+          path: text_block.txt
 
   comment:
     needs: [tofu-init, tofu-plan]
@@ -46,7 +46,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: text-block
-          path: .
+          path: text_block.txt
 
       - name: Set environment variable
         run: |
