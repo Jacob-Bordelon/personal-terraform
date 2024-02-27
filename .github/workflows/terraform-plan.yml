@@ -48,7 +48,7 @@ jobs:
 
       - name: Create or Update comment
         uses: peter-evans/create-or-update-comment@v4
-        - env:
+        env:
           PLAN: ${{needs.tofu-plan.outputs.results }}
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
