@@ -14,7 +14,15 @@ jobs:
   find-existing:
     runs-on: ubuntu-latest
     steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body-includes: <!-- opentofu-bot -->
+
       - name: Create comment
+        if: ${{ steps.fc.outputs.comment-id == '' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.issue.number }}
@@ -22,13 +30,20 @@ jobs:
             This is a multi-line test comment
             - With GitHub **Markdown** :sparkles:
             - Created by [create-or-update-comment][1]
-            
-      # - name: Find Comment
-      #   uses: peter-evans/find-comment@v3
-      #   id: fc
-      #   with:
-      #     issue-number: ${{ github.event.issue.number }}
-      #     body-includes: <!-- terraform-plan-bot -->
+            <!-- opentofu-bot -->
+
+      - name: Update comment
+        if: ${{ steps.fc.outputs.comment-id != '' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          body: |
+            This is a multi-line test comment
+            - This has been updated
+            <!-- opentofu-bot -->
+
+
 
       # - name: Found Comment
       #   if: ${{ steps.fc.outputs.comment-id != '' }}
