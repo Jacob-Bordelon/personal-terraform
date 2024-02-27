@@ -1,9 +1,10 @@
 name: 'Plan'
 
 on: 
-  pull_request:
-    paths-ignore:
-      - '.github/**'
+  pull_request
+  # :
+    # paths-ignore:
+    #   - '.github/**'
 
 permissions:
   id-token: write
