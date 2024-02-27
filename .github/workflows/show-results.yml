@@ -14,25 +14,34 @@ jobs:
   find-existing:
     runs-on: ubuntu-latest
     steps:
-      - name: Find Comment
-        uses: peter-evans/find-comment@v3
-        id: fc
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.issue.number }}
-          body-includes: <!-- terraform-plan-bot -->
+          body: |
+            This is a multi-line test comment
+            - With GitHub **Markdown** :sparkles:
+            - Created by [create-or-update-comment][1]
+            
+      # - name: Find Comment
+      #   uses: peter-evans/find-comment@v3
+      #   id: fc
+      #   with:
+      #     issue-number: ${{ github.event.issue.number }}
+      #     body-includes: <!-- terraform-plan-bot -->
 
-      - name: Found Comment
-        if: ${{ steps.fc.outputs.comment-id != '' }}
-        run: echo "Do something with that comment"
+      # - name: Found Comment
+      #   if: ${{ steps.fc.outputs.comment-id != '' }}
+      #   run: echo "Do something with that comment"
 
-  comment:
-    if: contains(github.event.comment.body, 'tofu plan')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Somethings Running
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run:  echo "$GITHUB_CONTEXT"
+  # comment:
+  #   if: contains(github.event.comment.body, 'tofu plan')
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Somethings Running
+  #       env:
+  #         GITHUB_CONTEXT: ${{ toJson(github) }}
+  #       run:  echo "$GITHUB_CONTEXT"
         
 
       # - name: Add comment to PR
