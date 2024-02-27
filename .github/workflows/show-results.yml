@@ -11,21 +11,31 @@ permissions:
   issues: write
 
 jobs:
+  # find-existing:
+  #   runs-on: ubuntu-latest
+  #   if: contains(github.event.comment.body, '<!-- terraform-plan-bot -->')
+  #   steps:
+
   comment:
     if: contains(github.event.comment.body, 'tofu plan')
     runs-on: ubuntu-latest
     steps:
       - name: Somethings Running
-        run: |
-          echo "Hello World"
-
-      - name: Add comment to PR
         env:
-          URL: ${{ github.event.issue.comments_url }}
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          curl \
-            -X POST $URL \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            --data '{ "body": "This will be a bot" }'
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run:   echo "$GITHUB_CONTEXT"
+        
+
+      # - name: Add comment to PR
+      #   env:
+      #     URL: ${{ github.event.issue.comments_url }}
+      #     GITHUB_TOKEN: ${{ github.token }}
+      #   run: |
+      #     curl \
+      #       -X POST $URL \
+      #       -H "Content-Type: application/json" \
+      #       -H "Authorization: Bearer $GITHUB_TOKEN" \
+      #       --data '{ "body": "
+      #         This will be a bot
+      #         <!-- terraform-plan-bot -->
+      #       " }'
