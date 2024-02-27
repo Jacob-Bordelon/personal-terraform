@@ -47,10 +47,8 @@ jobs:
       - name: Render template
         id: template
         uses: chuhlomin/render-template@v1.4
-        env:
-          PLAN: ${{needs.tofu-plan.outputs.results }}
         with:
-          template: .github/plan-template.md
+          template: .github/comment-template.md
           vars: |
             foo: this
             bar: that
