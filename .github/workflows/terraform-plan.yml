@@ -36,6 +36,7 @@ jobs:
     steps:
       - name: Find Comment
         uses: peter-evans/find-comment@v3
+        continue-on-error: true
         id: fc
         with:
           issue-number: ${{ github.event.issue.number }}
