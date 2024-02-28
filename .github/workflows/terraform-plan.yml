@@ -102,6 +102,9 @@ jobs:
       - run: tofu init
       - name: 'Tofu Apply'
         run: echo "Apply Changes"
+      - uses: geekyeggo/delete-artifact@v4
+        with:
+          name: tofu-plan
 
 
   # comment:
