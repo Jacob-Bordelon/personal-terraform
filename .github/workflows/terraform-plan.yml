@@ -49,6 +49,7 @@ jobs:
           path: tofu-plan.txt
 
       - name: Set environment variable
+        id: env
         run: |
           echo "TEXT_BLOCK=$(cat tofu-plan.txt)" >> $GITHUB_ENV
 
@@ -70,4 +71,4 @@ jobs:
           body: |
             <!-- opentofu-bot -->
             Terraform Plan
-            \`\`\`" $TEXT_BLOCK "\`\`\`
+            \`\`\`" ${{ steps.env.outputs.TEXT_BLOCK }} "\`\`\`
