@@ -15,7 +15,6 @@ permissions:
 jobs:
   tofu-plan:
     runs-on: ubuntu-latest
-    needs: [tofu-init]
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
@@ -40,7 +39,7 @@ jobs:
           retention-days: 1
 
   comment:
-    needs: [tofu-init, tofu-plan]
+    needs: [tofu-plan]
     runs-on: ubuntu-latest
     steps:
       - name: Download Plan
