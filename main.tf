@@ -19,7 +19,7 @@ data "github_repository" "test" {
 
 resource "github_repository_environment" "test" {
   repository     = data.github_repository.test.name
-  environment    = "${var.env_name}"
+  environment    = "production"
   prevent_self_review = false
 
   reviewers {
