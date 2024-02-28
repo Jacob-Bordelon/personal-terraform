@@ -13,67 +13,71 @@ permissions:
   issues: write
 
 jobs:
-  tofu-plan:
+  tofu-init:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
-
-      - name: 'Tofu Init'
-        run: tofu init
-
+      - run: tofu init
+  
+  tofu-plan:
+    runs-on: ubuntu-latest
+    needs: [tofu-init]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - run: tofu init
       - name: 'Tofu Plan'
         id: plan
         env:
           TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
           TF_VAR_env_name: 'production'
-        run: |
-          output=$(tofu plan -no-color 2> /dev/null)
-          echo "$output" > tofu-plan.txt
+        run: tofu plan -no-color
+      - run: echo ${{ steps.plan.outputs.stdout }}
 
-      - name: Upload Plan to Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: tofu-plan
-          path: tofu-plan.txt
-          retention-days: 1
+      # - name: Upload Plan to Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: tofu-plan
+      #     path: tofu-plan.txt
+      #     retention-days: 1
 
-  comment:
-    needs: [tofu-plan]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Plan
-        uses: actions/download-artifact@v4
-        with:
-          name: tofu-plan
+  # comment:
+  #   needs: [tofu-init, tofu-plan]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download Plan
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: tofu-plan
 
-      - name: Set plan variable in output
-        id: plan
-        run: |
-          {
-            echo 'PLAN<<EOF'
-            cat tofu-plan.txt
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
+  #     - name: Set plan variable in output
+  #       id: plan
+  #       run: |
+  #         {
+  #           echo 'PLAN<<EOF'
+  #           cat tofu-plan.txt
+  #           echo EOF
+  #         } >> "$GITHUB_OUTPUT"
 
-      - name: Find Comment
-        uses: peter-evans/find-comment@v3
-        continue-on-error: true
-        id: fc
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: <!-- opentofu-bot -->
+  #     - name: Find Comment
+  #       uses: peter-evans/find-comment@v3
+  #       continue-on-error: true
+  #       id: fc
+  #       with:
+  #         issue-number: ${{ github.event.pull_request.number }}
+  #         comment-author: 'github-actions[bot]'
+  #         body-includes: <!-- opentofu-bot -->
 
-      - name: Create or Update comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          edit-mode: replace
-          body: |
-            <!-- opentofu-bot -->
-            Terraform Plan
-            ```hcl
-              ${{ steps.plan.outputs.PLAN }}
-            ```
+  #     - name: Create or Update comment
+  #       uses: peter-evans/create-or-update-comment@v4
+  #       with:
+  #         comment-id: ${{ steps.fc.outputs.comment-id }}
+  #         issue-number: ${{ github.event.pull_request.number }}
+  #         edit-mode: replace
+  #         body: |
+  #           <!-- opentofu-bot -->
+  #           Terraform Plan
+  #           ```hcl
+  #             ${{ steps.plan.outputs.PLAN }}
+  #           ```
