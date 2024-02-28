@@ -1,0 +1,17 @@
+name: 'Initalizalize multiple Modules'
+
+on: pull_request
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    # strategy:
+    #   matrix:
+    #     modules: [one, two, three]
+    steps:
+      - runs: ls
+      - runs: touch file.txt
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - runs: ls
