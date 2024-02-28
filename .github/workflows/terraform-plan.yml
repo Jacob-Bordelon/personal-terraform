@@ -33,7 +33,7 @@ jobs:
           TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
           TF_VAR_env_name: 'production'
         run: |
-          tofu plan > tofu-plan.txt
+          tofu plan -no-color > tofu-plan.txt
 
       - name: Upload Plan to Artifacts
         uses: actions/upload-artifact@v4
@@ -78,6 +78,6 @@ jobs:
           body: |
             <!-- opentofu-bot -->
             Terraform Plan
-            \`\`\`
+            \`\`\`hcl
             ${{ steps.plan.outputs.PLAN }}
             \`\`\`
