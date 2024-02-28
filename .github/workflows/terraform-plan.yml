@@ -19,13 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
-      
+
       - name: 'Tofu Init'
         run: tofu init
 
       - name: 'Tofu Plan'
         id: plan
-        shell: bash
         env:
           TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
           TF_VAR_env_name: 'production'
