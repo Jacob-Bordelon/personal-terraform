@@ -1,7 +1,10 @@
 name: 'Plan'
 
 on: 
-  pull_request
+  pull_request:
+    types:
+      - opened
+      - closed
     # paths-ignore:
     #   - '.github/**'
 
