@@ -42,7 +42,7 @@ jobs:
           github-token: ${{ github.token }}
           script: |
             const output = `
-              \`\`\`\n
+              \`\`\`hcl\n
               ${process.env.PLAN}
               \`\`\`
             `;
