@@ -15,6 +15,10 @@ permissions:
   pull-requests: write
   issues: write
 
+env:
+  TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
+  TF_VAR_env_name: 'production'
+
 jobs:
   tofu-init:
     runs-on: ubuntu-latest
