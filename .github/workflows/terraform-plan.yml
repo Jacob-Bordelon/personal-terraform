@@ -23,7 +23,7 @@ jobs:
   tofu-init:
     runs-on: ubuntu-latest
     steps:
-      - uses: wei/pull-request-approve-action@v1
+      - uses: trstringer/manual-approval@v1
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
       - run: tofu init
