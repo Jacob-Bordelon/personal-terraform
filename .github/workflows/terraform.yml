@@ -9,9 +9,9 @@ jobs:
     #   matrix:
     #     modules: [one, two, three]
     steps:
-      - runs: ls
-      - runs: touch file.txt
+      - run: ls
+      - run: touch file.txt
   job2:
     runs-on: ubuntu-latest
     steps:
-      - runs: ls
+      - run: ls
