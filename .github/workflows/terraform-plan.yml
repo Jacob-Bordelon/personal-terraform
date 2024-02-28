@@ -35,13 +35,13 @@ jobs:
         env:
           TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
           TF_VAR_env_name: 'production'
-        run: tofu plan -no-color -out plan.tfplan
+        run: tofu plan -no-color 
 
-      - name: Upload Plan to Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: tofu-plan
-          path: plan.tfplan
+      # - name: Upload Plan to Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: tofu-plan
+      #     path: plan.tfplan
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
@@ -92,18 +92,12 @@ jobs:
     needs: [tofu-init, tofu-plan]
     environment: 'staging'
     steps:
-      - name: Download Plan
-        uses: actions/download-artifact@v4
-        with:
-          name: tofu-plan
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
       - run: tofu init
+      - run: tofu plan -no-color 
       - name: 'Tofu Apply'
         run: echo "Apply Changes"
-      - uses: geekyeggo/delete-artifact@v4
-        with:
-          name: tofu-plan
 
 
   # comment:
