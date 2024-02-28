@@ -9,10 +9,6 @@ variable repo_fullname {
   type        = string
 }
 
-variable env_name {
-  type        = string
-}
-
 data "github_repository" "test" {
   full_name = "${var.repo_fullname}"
 }
