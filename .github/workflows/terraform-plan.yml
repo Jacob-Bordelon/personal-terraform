@@ -51,11 +51,10 @@ jobs:
         with:
           name: tofu-plan
 
-      # - name: Set environment variable
-      #   id: plan
-      #   run: |
-      #     value=`cat tofu-plan.txt`
-      #     echo "TEXT_BLOCK=$value" >> $GITHUB_ENV
+      - name: Set environment variable
+        id: plan
+        run: |
+          echo "TEXT_BLOCK=$(cat tofu-plan.txt)" >> $GITHUB_OUTPUT
 
       - name: Find Comment
         uses: peter-evans/find-comment@v3
@@ -75,4 +74,4 @@ jobs:
           body: |
             <!-- opentofu-bot -->
             Terraform Plan
-            \`\`\`" ${{ cat tofu-plan.txt }} "\`\`\`
+            ${{ steps.plan.outputs.TEXT_BLOCK }}
