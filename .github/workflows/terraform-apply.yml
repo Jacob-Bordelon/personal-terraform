@@ -15,15 +15,30 @@ jobs:
   tofu-init:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
-  
+      - run: tofu init
+
   tofu-plan:
     runs-on: ubuntu-latest
     needs: [tofu-init]
     steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - run: tofu init
       - name: 'Tofu Plan'
-        run: pwd
+        id: plan
+        env:
+          TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
+          TF_VAR_env_name: 'production'
+        run: tofu plan -no-color -out plan.tfplan
+      - name: Upload Plan to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tofu-plan
+          path: plan.tfplan
+          retention-days: 1
+      
 
   tofu-apply:
     if: github.event.pull_request.merged == true
@@ -31,5 +46,13 @@ jobs:
     needs: [tofu-init, tofu-plan]
     environment: 'staging'
     steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - run: tofu init
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tofu-plan
+
       - name: 'Tofu Apply'
         run: pwd

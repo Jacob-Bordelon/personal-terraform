@@ -31,7 +31,14 @@ jobs:
         env:
           TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
           TF_VAR_env_name: 'production'
-        run: tofu plan -no-color
+        run: tofu plan -no-color -out plan.tfplan
+
+      - name: Upload Plan to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tofu-plan
+          path: plan.tfplan
+          retention-days: 1
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
@@ -75,22 +82,32 @@ jobs:
                 body: output
               })
             }
+  
+  tofu-apply:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    needs: [tofu-init, tofu-plan]
+    environment: 'staging'
+    steps:
+      - name: Download Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tofu-plan
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - run: tofu init
+      - name: 'Tofu Apply'
+        run: echo "Apply Changes"
 
-      # - name: Upload Plan to Artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: tofu-plan
-      #     path: tofu-plan.txt
-      #     retention-days: 1
 
   # comment:
   #   needs: [tofu-init, tofu-plan]
   #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Download Plan
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: tofu-plan
+    # steps:
+    #   - name: Download Plan
+    #     uses: actions/download-artifact@v4
+    #     with:
+    #       name: tofu-plan
 
   #     - name: Set plan variable in output
   #       id: plan
