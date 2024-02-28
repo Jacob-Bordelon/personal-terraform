@@ -78,6 +78,6 @@ jobs:
           body: |
             <!-- opentofu-bot -->
             Terraform Plan
-            \`\`\`hcl
-            ${{ steps.plan.outputs.PLAN }}
-            \`\`\`
+            ```hcl
+              ${{ steps.plan.outputs.PLAN }}
+            ```
