@@ -36,7 +36,7 @@ jobs:
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "$ tofu plan\n${{ steps.plan.outputs.stdout }}"
+          PLAN: "${{ steps.plan.outputs.stdout }}"
         with:
           github-token: ${{ github.token }}
           script: |
@@ -57,7 +57,6 @@ jobs:
               ${process.env.PLAN}
               \`\`\`
               *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*
-              [button url="http://www.google.com"]
             `;
 
             // 3. If we have a comment, update it, otherwise create a new one
