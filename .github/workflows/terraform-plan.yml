@@ -37,15 +37,15 @@ jobs:
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "tofu\n${{ steps.plan.outputs.stdout }}"
+          PLAN: "$ tofu plan\n${{ steps.plan.outputs.stdout }}"
         with:
           github-token: ${{ github.token }}
           script: |
-            const output = ` <details><summary>Show Plan</summary>
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
-            </details>`;
+            const output = `
+              \`\`\`\n
+              ${process.env.PLAN}
+              \`\`\`
+            `;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
