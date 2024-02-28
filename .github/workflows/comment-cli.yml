@@ -18,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/github-script@v7
-        # if: contains(github.event.comment.body, '/tofu-plan')
         with:
           github-token: ${{ github.token }}
           script: |
@@ -38,7 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/github-script@v7
-        # if: contains(github.event.comment.body, '/tofu-apply')
         with:
           github-token: ${{ github.token }}
           script: |
@@ -51,3 +49,14 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
+
+  approve:
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/tofu-approve') }} 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            console.log({github.rest})
