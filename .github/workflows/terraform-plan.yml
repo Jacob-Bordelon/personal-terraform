@@ -15,6 +15,13 @@ permissions:
   pull-requests: write
   issues: write
 
+strategy:
+  matrix:
+    environments: [
+      'production',
+      'staging'
+    ]
+
 env:
   TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
   TF_VAR_env_name: 'production'
