@@ -46,7 +46,7 @@ jobs:
     needs: [tofu-init, tofu-plan]
     runs-on: ubuntu-latest
     steps:
-      - name: Download text block artifact
+      - name: Download Plan
         uses: actions/download-artifact@v4
         with:
           name: tofu-plan
@@ -54,7 +54,9 @@ jobs:
       - name: Set environment variable
         id: plan
         run: |
-          cat tofu-plan.txt
+          echo $GITHUB_OUTPUT
+          cat tofu-plan.txt >> $GITHUB_OUTPUT
+          echo $GITHUB_OUTPUT
 
       - name: Find Comment
         uses: peter-evans/find-comment@v3
