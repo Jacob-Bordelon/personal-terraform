@@ -6,6 +6,7 @@ on:
       - opened
       - closed
       - edited
+      - synchronize
     # paths-ignore:
     #   - '.github/**'
 
