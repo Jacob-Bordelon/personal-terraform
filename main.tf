@@ -2,7 +2,7 @@
 # https://registry.terraform.io/providers/integrations/github/latest/docs#authentication
 
 data "github_user" "current" {
-  username = "" # uses git cli 
+  username = "Jacob-Bordelon" # uses git cli 
 }
 
 variable repo_fullname {
