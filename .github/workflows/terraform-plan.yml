@@ -6,8 +6,8 @@ on:
       - opened
       - closed
       - synchronize
-    # paths-ignore:
-    #   - '.github/**'
+    paths-ignore:
+      - '.github/**'
 
 permissions:
   id-token: write
