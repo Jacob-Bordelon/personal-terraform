@@ -5,13 +5,13 @@ on: pull_request
 jobs:
   job1:
     runs-on: ubuntu-latest
-    # strategy:
-    #   matrix:
-    #     modules: [one, two, three]
     steps:
       - run: ls
       - run: touch file.txt
+      - run: ls
+
   job2:
     runs-on: ubuntu-latest
+    needs: [job1]
     steps:
       - run: ls
