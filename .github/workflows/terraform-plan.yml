@@ -54,25 +54,27 @@ jobs:
       - name: Set environment variable
         id: plan
         run: |
-          echo $GITHUB_OUTPUT
-          cat tofu-plan.txt >> $GITHUB_OUTPUT
-          echo $GITHUB_OUTPUT
+          {
+            echo 'PLAN<<EOF'
+            cat tofu-plan.txt
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
 
-      - name: Find Comment
-        uses: peter-evans/find-comment@v3
-        continue-on-error: true
-        id: fc
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: <!-- opentofu-bot -->
+      # - name: Find Comment
+      #   uses: peter-evans/find-comment@v3
+      #   continue-on-error: true
+      #   id: fc
+      #   with:
+      #     issue-number: ${{ github.event.pull_request.number }}
+      #     comment-author: 'github-actions[bot]'
+      #     body-includes: <!-- opentofu-bot -->
 
-      - name: Create or Update comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          edit-mode: replace
-          body: |
-            <!-- opentofu-bot -->
-            Terraform Plan
+      # - name: Create or Update comment
+      #   uses: peter-evans/create-or-update-comment@v4
+      #   with:
+      #     comment-id: ${{ steps.fc.outputs.comment-id }}
+      #     issue-number: ${{ github.event.pull_request.number }}
+      #     edit-mode: replace
+      #     body: |
+      #       <!-- opentofu-bot -->
+      #       Terraform Plan
