@@ -1,0 +1,46 @@
+name: "CLI"
+
+on:
+  issue_comment:
+    types:
+      - created
+
+permissions:
+  id-token: write
+  contents: read 
+  pull-requests: write
+  issues: write
+
+jobs:
+  plan:
+    if: ${{ github.event.issue.pull_request }} && contains(github.event.comment.body, '/tofu-plan')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v6
+        script: |
+          const output = `
+            Plan Here
+          `;
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+  apply:
+    if: ${{ github.event.issue.pull_request }} && contains(github.event.comment.body, '/tofu-apply')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v6
+        script: |
+          const output = `
+            Apply Here
+          `;
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
