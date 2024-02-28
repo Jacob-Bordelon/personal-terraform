@@ -36,6 +36,9 @@ jobs:
       - run: tofu init
       - name: 'Tofu Plan'
         id: plan
+        env:
+          TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
+          TF_VAR_env_name: 'production'
         run: tofu plan -no-color 
 
       # - name: Upload Plan to Artifacts
