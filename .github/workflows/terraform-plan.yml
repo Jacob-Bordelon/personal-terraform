@@ -42,7 +42,6 @@ jobs:
         with:
           name: tofu-plan
           path: plan.tfplan
-          retention-days: 1
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
