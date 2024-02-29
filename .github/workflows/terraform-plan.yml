@@ -17,26 +17,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  get-diff:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Printing
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github.event.pull_request) }}
-        run: |
-          echo $GITHUB_CONTEXT
-
-  # get-modules:
+  # get-diff:
   #   runs-on: ubuntu-latest
-  #   outputs:
-  #     directories: ${{ steps.ls.outputs.directories }}
   #   steps:
   #     - uses: actions/checkout@v4
-  #     - id: ls
+  #     - name: Printing
+  #       env:
+  #         GITHUB_CONTEXT: ${{ toJson(github.event.pull_request) }}
   #       run: |
-  #         temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
-  #         echo "directories=$temp" >> $GITHUB_OUTPUT
+  #         echo $GITHUB_CONTEXT
+
+  get-modules:
+    runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.ls.outputs.directories }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: ls
+        run: |
+          temp=$(gh pr diff 19 --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
+          # temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
+          echo "directories=$temp" >> $GITHUB_OUTPUT
     
 
   # terraform-plan:
