@@ -7,6 +7,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: ./.github/workflows/reuse.yml
-        secrets: inherit
         with:
           working-dir: ./src/one
