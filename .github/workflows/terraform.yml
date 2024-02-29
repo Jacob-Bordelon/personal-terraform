@@ -4,7 +4,10 @@ on: pull_request
 
 jobs:
   terraform:
+    strategy:
+      matrix:
+        dir: [one, two three]
     uses: ./.github/workflows/reuse.yml
     with:
-      working-dir: src/one
+      working-dir: src/${{ matrix.dir }}
     secrets: inherit
