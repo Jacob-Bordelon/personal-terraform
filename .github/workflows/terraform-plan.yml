@@ -101,7 +101,7 @@ jobs:
       - name: 'plans'
         id: plans
         run: |
-          cat outputs.txt
+          cat output.txt
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
