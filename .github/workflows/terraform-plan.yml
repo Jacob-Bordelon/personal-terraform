@@ -59,7 +59,7 @@ jobs:
               issue_number: context.issue.number,
             })
 
-            const commentMark = `<!-- opentofu-bot-${ $DIR } -->`
+            const commentMark = `<!-- opentofu-bot-${process.env.DIR} -->`
 
             const botComment = comments.find(comment => {
               return comment.user.type === 'Bot' && comment.body.includes(commentMark)
