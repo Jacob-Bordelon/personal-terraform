@@ -42,26 +42,33 @@ jobs:
       plans: ${{ src/matrix.dir+"\n"+join(steps.store.outputs.*, '\n') }}
     steps:
       - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-      - name: tofu init
-        working-directory: src/${{ matrix.dir }}
-        run: tofu init
-      - name: tofu plan
-        working-directory: src/${{ matrix.dir }}
+      - name: 'store'
         env:
-          TF_IN_AUTOMATION: true
-        run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
-        id: plan
-      - name: store plan
-        id: store
-        env:
-          PLAN: "${{ steps.plan.outputs.stdout }}"
+          DIR: src/${{ matrix.dir }}
         run: |
           {
-            echo "JSON_RESPONSE<<EOF"
-            echo $PLAN
-            echo "EOF"
+            echo $DIR
           } >> $GITHUB_OUTPUT
+      # - uses: opentofu/setup-opentofu@v1
+      # - name: tofu init
+      #   working-directory: src/${{ matrix.dir }}
+      #   run: tofu init
+      # - name: tofu plan
+      #   working-directory: src/${{ matrix.dir }}
+      #   env:
+      #     TF_IN_AUTOMATION: true
+      #   run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
+      #   id: plan
+      # - name: store plan
+      #   id: store
+      #   env:
+      #     PLAN: "${{ steps.plan.outputs.stdout }}"
+        # run: |
+        #   {
+        #     echo "JSON_RESPONSE<<EOF"
+        #     echo $PLAN
+        #     echo "EOF"
+        #   } >> $GITHUB_OUTPUT
 
   push-comment:
     runs-on: ubuntu-latest
