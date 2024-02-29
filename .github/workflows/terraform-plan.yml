@@ -133,9 +133,9 @@ jobs:
               ${ commentMark }
               ## **Source: _${source}_**
               #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
-              \`\`\`hcl\n
+              
               ${process.env.PLAN}
-              \`\`\`
+              
               *Pusher: @${{ github.actor }}*
               _Updated at: ${datetime}_
             `;
