@@ -39,16 +39,17 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans: ${{ steps.store.outputs.JSON_RESPONSE }}
+      plans: ${{ steps.store.outputs.* }}
     steps:
       - uses: actions/checkout@v4
       - name: store plan
         id: store
         env:
           PLAN: "src/${{ matrix.dir }}"
+          DIR: "src/${{ matrix.dir }}"
         run: |
           {
-            echo "JSON_RESPONSE<<EOF"
+            echo "$DIR<<EOF"
             echo $PLAN
             echo "EOF"
           } >> $GITHUB_OUTPUT
