@@ -39,7 +39,7 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans: ${{ join(steps.store.outputs.*) }}
+      plans: ${{ steps.store.outputs.* }}
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
