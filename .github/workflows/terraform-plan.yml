@@ -47,7 +47,9 @@ jobs:
           DIR: src/${{ matrix.dir }}
         run: |
           {
+            echo "JSON_RESPONSE<<EOF"
             echo $DIR
+            echo "EOF"
           } >> $GITHUB_OUTPUT
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
