@@ -17,16 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # get-diff:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Printing
-  #       env:
-  #         GITHUB_CONTEXT: ${{ toJson(github.event.pull_request) }}
-  #       run: |
-  #         echo $GITHUB_CONTEXT
-
   get-modules:
     runs-on: ubuntu-latest
     outputs:
@@ -40,70 +30,70 @@ jobs:
           echo "directories=$temp" >> $GITHUB_OUTPUT
     
 
-  # terraform-plan:
-  #   runs-on: ubuntu-latest
-  #   needs: [get-modules]    
-  #   strategy:
-  #     matrix:
-  #       dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: opentofu/setup-opentofu@v1
-  #     - name: tofu init
-  #       working-directory: src/${{ matrix.dir }}
-  #       run: tofu init
-  #     - name: tofu plan
-  #       working-directory: src/${{ matrix.dir }}
-  #       env:
-  #         TF_IN_AUTOMATION: true
-  #       run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
-  #       id: plan
-  #     - uses: actions/github-script@v6
-  #       if: github.event_name == 'pull_request'
-  #       env:
-  #         PLAN: "${{ steps.plan.outputs.stdout }}"
-  #         DIR: "${{ matrix.dir }}"
-  #       with:
-  #         github-token: ${{ github.token }}
-  #         script: |
-  #           const { data: comments } = await github.rest.issues.listComments({
-  #             owner: context.repo.owner,
-  #             repo: context.repo.repo,
-  #             issue_number: context.issue.number,
-  #           })
+  terraform-plan:
+    runs-on: ubuntu-latest
+    needs: [get-modules]    
+    strategy:
+      matrix:
+        dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+      - name: tofu init
+        working-directory: src/${{ matrix.dir }}
+        run: tofu init
+      - name: tofu plan
+        working-directory: src/${{ matrix.dir }}
+        env:
+          TF_IN_AUTOMATION: true
+        run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
+        id: plan
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+          DIR: "${{ matrix.dir }}"
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
 
-  #           const datetime = new Date().toLocaleString()
-  #           const source = process.env.DIR
-  #           const commentMark = `<!-- opentofu-bot-${source} -->`
+            const datetime = new Date().toLocaleString()
+            const source = process.env.DIR
+            const commentMark = `<!-- opentofu-bot-${source} -->`
 
-  #           const botComment = comments.find(comment => {
-  #             return comment.user.type === 'Bot' && comment.body.includes(commentMark)
-  #           })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes(commentMark)
+            })
 
-  #           const output = `
-  #             ${ commentMark }
-  #             ## **Source: _${source}_**
-  #             #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
-  #             \`\`\`hcl\n
-  #             ${process.env.PLAN}
-  #             \`\`\`
-  #             *Pusher: @${{ github.actor }}*
-  #             _Updated at: ${datetime}_
-  #           `;
+            const output = `
+              ${ commentMark }
+              ## **Source: _${source}_**
+              #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
+              \`\`\`hcl\n
+              ${process.env.PLAN}
+              \`\`\`
+              *Pusher: @${{ github.actor }}*
+              _Updated at: ${datetime}_
+            `;
 
-  #           // 3. If we have a comment, update it, otherwise create a new one
-  #           if (botComment) {
-  #             github.rest.issues.updateComment({
-  #               owner: context.repo.owner,
-  #               repo: context.repo.repo,
-  #               comment_id: botComment.id,
-  #               body: output
-  #             })
-  #           } else {
-  #             github.rest.issues.createComment({
-  #               issue_number: context.issue.number,
-  #               owner: context.repo.owner,
-  #               repo: context.repo.repo,
-  #               body: output
-  #             })
-  #           }
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
