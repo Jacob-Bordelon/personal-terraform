@@ -19,10 +19,26 @@ concurrency:
 jobs:
   get-modules:
     runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.ls.outputs.directories }}
     steps:
       - uses: actions/checkout@v4
-      - run: ls src
+      - id: ls
+        run: |
+          temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
+          echo "directories=$temp" >> $GITHUB_OUTPUT
+    
 
+  terraform-plan:
+    runs-on: ubuntu-latest
+    needs: [get-modules]    
+    strategy:
+      matrix:
+        dir: ${{ needs.get-modules.outputs.directories }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pwd
+        working-directory: src/${{ matrix.dir }}
   # terraform-plan:
   #   strategy:
   #     matrix:
