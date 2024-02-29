@@ -40,7 +40,7 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans: ${{ toJson(steps) }}
+      plans_${{ matrix.dir }}: ${{ toJson(steps) }}
     steps:
       - uses: actions/checkout@v4
       - name: store plan
