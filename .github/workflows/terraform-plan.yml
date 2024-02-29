@@ -79,10 +79,8 @@ jobs:
     needs: [terraform-plan]
     steps:
       - name: 'plans'
-        env:
-          PLANS: ${{ toJson(needs.terraform-plan.outputs.plans) }}
         run: |
-          echo $PLANS
+          echo "${{ needs.terraform-plan.outputs.plans["temp"] }}"
       # - uses: actions/github-script@v6
       #   if: github.event_name == 'pull_request'
       #   env:
