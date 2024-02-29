@@ -12,58 +12,71 @@ permissions:
   pull-requests: write
   issues: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  terraform-plan:
+  get-modules:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-      - name: tofu init
-        working-directory: src/one
-        run: tofu init
-      - name: tofu plan
-        working-directory: src/one
-        run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
-        id: plan
-      - uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: "${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            })
+      - run: ls src
 
-            const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('<!-- opentofu-bot -->')
-            })
+  # terraform-plan:
+  #   strategy:
+  #     matrix:
+  #       dir: [one,two,three]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: opentofu/setup-opentofu@v1
+  #     - name: tofu init
+  #       working-directory: src/${{ matrix.dir }}
+  #       run: tofu init
+  #     - name: tofu plan
+  #       working-directory: src/${{ matrix.dir }}
+  #       run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
+  #       id: plan
+  #     - uses: actions/github-script@v6
+  #       if: github.event_name == 'pull_request'
+  #       env:
+  #         PLAN: "${{ steps.plan.outputs.stdout }}"
+  #       with:
+  #         github-token: ${{ github.token }}
+  #         script: |
+  #           const { data: comments } = await github.rest.issues.listComments({
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             issue_number: context.issue.number,
+  #           })
 
-            const output = `
-              <!-- opentofu-bot -->
-              #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
-              \`\`\`hcl\n
-              ${process.env.PLAN}
-              \`\`\`
-              *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*
-            `;
+  #           const botComment = comments.find(comment => {
+  #             return comment.user.type === 'Bot' && comment.body.includes('<!-- opentofu-bot -->')
+  #           })
 
-            // 3. If we have a comment, update it, otherwise create a new one
-            if (botComment) {
-              github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: output
-              })
-            } else {
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: output
-              })
-            }
+  #           const output = `
+  #             <!-- opentofu-bot -->
+  #             #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
+  #             \`\`\`hcl\n
+  #             ${process.env.PLAN}
+  #             \`\`\`
+  #             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*
+  #           `;
+
+  #           // 3. If we have a comment, update it, otherwise create a new one
+  #           if (botComment) {
+  #             github.rest.issues.updateComment({
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               comment_id: botComment.id,
+  #               body: output
+  #             })
+  #           } else {
+  #             github.rest.issues.createComment({
+  #               issue_number: context.issue.number,
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               body: output
+  #             })
+  #           }

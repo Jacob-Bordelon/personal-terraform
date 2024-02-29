@@ -15,7 +15,7 @@ data "github_repository" "test" {
  
 resource "github_repository_environment" "test" {
   repository     = data.github_repository.test.name
-  environment    = "production"
+  environment    = "development"
   prevent_self_review = false
 
   reviewers {
