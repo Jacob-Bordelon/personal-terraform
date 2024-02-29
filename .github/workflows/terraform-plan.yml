@@ -12,14 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
-      - run: cd src/one
-      - run: pwd
-      - run: pwd
-      # - name: tofu init
-      #   run: tofu init
-      # - name: tofu plan
-      #   run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
-      #   id: plan
+      - name: tofu init
+        working_directory: src/one
+        run: pwd
+        # run: tofu init
+      - name: tofu plan
+        working_directory: src/one
+        run: pwd
+        # run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
+        id: plan
       # - uses: actions/github-script@v6
       #   if: github.event_name == 'pull_request'
       #   env:
