@@ -20,7 +20,7 @@ jobs:
   get-modules:
     runs-on: ubuntu-latest
     outputs:
-      directories: ${{ steps.ls.outputs.directories }}
+      directories: fromJson(${{ steps.ls.outputs.directories }})
     steps:
       - uses: actions/checkout@v4
       - id: ls
