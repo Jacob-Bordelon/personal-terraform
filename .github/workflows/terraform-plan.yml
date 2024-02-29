@@ -59,6 +59,7 @@ jobs:
               issue_number: context.issue.number,
             })
 
+            const datetime = new Date().toLocaleString()
             const source = process.env.DIR
             const commentMark = `<!-- opentofu-bot-${source} -->`
 
@@ -74,6 +75,7 @@ jobs:
               ${process.env.PLAN}
               \`\`\`
               *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*
+              _Updated at: ${datetime}_
             `;
 
             // 3. If we have a comment, update it, otherwise create a new one
