@@ -46,10 +46,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: output
-          path: outputs
+      # - uses: actions/download-artifact@v4
+      #   with:
+      #     name: output
+      #     path: outputs
 
       - name: store plan
         id: store
@@ -57,6 +57,7 @@ jobs:
           PLAN: "src/${{ matrix.dir }}\n"
           DIR: "${{ matrix.dir }}"
         run: |
+          mkdir outputs
           echo $PLAN > outputs/$DIR.txt
 
       - uses: actions/upload-artifact@v4
