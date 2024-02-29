@@ -3,8 +3,7 @@ name: Terraform Plan
 on: 
   pull_request:
     types:
-      - opened
-      - synchronize
+      - edited
 
 permissions:
   id-token: write
@@ -18,6 +17,7 @@ concurrency:
 
 jobs:
   get-modules:
+    if: contains(github.event.comment.body, '/version-1')
     runs-on: ubuntu-latest
     outputs:
       directories: ${{ steps.ls.outputs.directories }}
@@ -49,11 +49,21 @@ jobs:
         with:
           name: output
 
+      - uses: opentofu/setup-opentofu@v1
+      - name: tofu init
+        working-directory: src/${{ matrix.dir }}
+        run: tofu init
+      - name: tofu plan
+        working-directory: src/${{ matrix.dir }}
+        env:
+          TF_IN_AUTOMATION: true
+        run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
+        id: plan
       - name: store plan
         id: store
         env:
           SRC: "src/${{ matrix.dir }}"
-          PLAN: "src/${{ matrix.dir }}"
+          PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
           {
             echo $SRC
@@ -63,32 +73,13 @@ jobs:
             echo ""
           } >> output.txt
 
+
       - uses: actions/upload-artifact@v4
         with:
           name: output
           path: output.txt
           overwrite: true
           
-      # - uses: opentofu/setup-opentofu@v1
-      # - name: tofu init
-      #   working-directory: src/${{ matrix.dir }}
-      #   run: tofu init
-      # - name: tofu plan
-      #   working-directory: src/${{ matrix.dir }}
-      #   env:
-      #     TF_IN_AUTOMATION: true
-      #   run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
-      #   id: plan
-      # - name: store plan
-      #   id: store
-      #   env:
-      #     PLAN: "${{ steps.plan.outputs.stdout }}"
-        # run: |
-        #   {
-        #     echo "JSON_RESPONSE<<EOF"
-        #     echo $PLAN
-        #     echo "EOF"
-        #   } >> $GITHUB_OUTPUT
 
   push-comment:
     runs-on: ubuntu-latest
