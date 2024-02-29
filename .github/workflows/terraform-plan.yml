@@ -20,6 +20,7 @@ jobs:
         run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
         id: plan
       - uses: actions/github-script@v6
+        working-directory: src/one
         if: github.event_name == 'pull_request'
         env:
           PLAN: "${{ steps.plan.outputs.stdout }}"
