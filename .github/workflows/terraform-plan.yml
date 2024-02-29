@@ -39,7 +39,7 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans: ${{ join(steps.store.outputs.*, '\n') }}
+      plans-${{ matrix.dir }}: ${{ steps.store.outputs.name}}
     steps:
       - uses: actions/checkout@v4
       - name: 'store'
@@ -74,7 +74,7 @@ jobs:
     steps:
       - name: 'plans'
         env:
-          PLANS: ${{ needs.terraform-plan.outputs.plans }}
+          PLANS: ${{ toJson(needs.terraform-plan.outputs) }}
         run: |
           echo $PLANS
       # - uses: actions/github-script@v6
