@@ -80,7 +80,7 @@ jobs:
     steps:
       - name: 'plans'
         run: |
-          echo "${{ needs.terraform-plan.outputs.plans["temp"] }}"
+          echo "${{ needs.terraform-plan.outputs.plans }}"
       # - uses: actions/github-script@v6
       #   if: github.event_name == 'pull_request'
       #   env:
