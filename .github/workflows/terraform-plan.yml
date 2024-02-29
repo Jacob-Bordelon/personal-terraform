@@ -49,6 +49,7 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           PLAN: "${{ steps.plan.outputs.stdout }}"
+          DIR: "${{ matrix.dir }}"
         with:
           github-token: ${{ github.token }}
           script: |
@@ -58,7 +59,7 @@ jobs:
               issue_number: context.issue.number,
             })
 
-            const commentMark = `<!-- opentofu-bot-${ matrix.dir } -->`
+            const commentMark = `<!-- opentofu-bot-${ $DIR } -->`
 
             const botComment = comments.find(comment => {
               return comment.user.type === 'Bot' && comment.body.includes(commentMark)
