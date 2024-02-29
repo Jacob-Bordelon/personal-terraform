@@ -23,6 +23,12 @@ jobs:
       directories: ${{ steps.ls.outputs.directories }}
     steps:
       - uses: actions/checkout@v4
+      - run: touch taco.txt
+      - uses: action/upload-artifact@v4
+        with:
+          name: output
+          path: taco.txt
+
       - id: ls
         env:
           GH_TOKEN: ${{ github.token }}
@@ -30,6 +36,7 @@ jobs:
           temp=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
           # temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
           echo "directories=$temp" >> $GITHUB_OUTPUT
+      
     
 
   terraform-plan:
@@ -41,21 +48,35 @@ jobs:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
       plans: ${{ toJson(steps) }}
+
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: output
+          path: taco.txt
+
       - name: 'temp'
         run: |
-          echo "${{ toJson(steps) }}"
+          cat taco.txt
+
       - name: store plan
         id: store
         env:
-          PLAN: "src/${{ matrix.dir }}"
+          PLAN: "src/${{ matrix.dir }}\n"
           DIR: "${{ matrix.dir }}"
         run: |
-          echo "endpoint=$PLAN" >> $GITHUB_OUTPUT
+          echo $PLAN >> taco.txt
+
       - name: 'temp'
         run: |
-          echo "${{ toJson(steps) }}"
+          cat taco.txt
+
+      - uses: action/upload-artifact@v4
+        with:
+          name: output
+          path: taco.txt
+          
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
       #   working-directory: src/${{ matrix.dir }}
