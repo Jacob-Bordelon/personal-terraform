@@ -13,4 +13,3 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - runs: pwd
-        working_directory: ${{ inputs.working-dir }}

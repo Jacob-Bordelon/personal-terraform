@@ -5,6 +5,6 @@ on: pull_request
 jobs:
   terraform:
     uses: ./.github/workflows/reuse.yml
-    secrets: inherit
     with:
-      working-dir: ./src/one
+      working-dir: src/one
+    secrets: inherit
