@@ -52,10 +52,16 @@ jobs:
       - name: store plan
         id: store
         env:
+          SRC: "src/${{ matrix.dir }}"
           PLAN: "src/${{ matrix.dir }}"
         run: |
-          ls
-          echo $PLAN >> output.txt
+          {
+            echo $SRC
+            echo "\`\`\`hcl"
+            echo $PLAN
+            echo "\`\`\`"
+            echo ""
+          } >> output.txt
 
       - uses: actions/upload-artifact@v4
         with:
@@ -77,12 +83,12 @@ jobs:
       #   id: store
       #   env:
       #     PLAN: "${{ steps.plan.outputs.stdout }}"
-      #   run: |
-      #     {
-      #       echo "JSON_RESPONSE<<EOF"
-      #       echo $PLAN
-      #       echo "EOF"
-      #     } >> $GITHUB_OUTPUT
+        # run: |
+        #   {
+        #     echo "JSON_RESPONSE<<EOF"
+        #     echo $PLAN
+        #     echo "EOF"
+        #   } >> $GITHUB_OUTPUT
 
   push-comment:
     runs-on: ubuntu-latest
@@ -93,55 +99,56 @@ jobs:
           name: output
 
       - name: 'plans'
+        id: plans
         run: |
-          ls
-          cat output.txt
-      # - uses: actions/github-script@v6
-      #   if: github.event_name == 'pull_request'
-      #   env:
-      #     PLAN: "${{ steps.plan.outputs.stdout }}"
-      #     DIR: "${{ matrix.dir }}"
-      #   with:
-      #     github-token: ${{ github.token }}
-      #     script: |
-      #       const { data: comments } = await github.rest.issues.listComments({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         issue_number: context.issue.number,
-      #       })
+          cat outputs.txt
 
-      #       const datetime = new Date().toLocaleString()
-      #       const source = process.env.DIR
-      #       const commentMark = `<!-- opentofu-bot-${source} -->`
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "${{ steps.plans.outputs.stdout }}"
+          DIR: "${{ matrix.dir }}"
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
 
-      #       const botComment = comments.find(comment => {
-      #         return comment.user.type === 'Bot' && comment.body.includes(commentMark)
-      #       })
+            const datetime = new Date().toLocaleString()
+            const source = process.env.DIR
+            const commentMark = `<!-- opentofu-bot-${source} -->`
 
-      #       const output = `
-      #         ${ commentMark }
-      #         ## **Source: _${source}_**
-      #         #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
-      #         \`\`\`hcl\n
-      #         ${process.env.PLAN}
-      #         \`\`\`
-      #         *Pusher: @${{ github.actor }}*
-      #         _Updated at: ${datetime}_
-      #       `;
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes(commentMark)
+            })
 
-      #       // 3. If we have a comment, update it, otherwise create a new one
-      #       if (botComment) {
-      #         github.rest.issues.updateComment({
-      #           owner: context.repo.owner,
-      #           repo: context.repo.repo,
-      #           comment_id: botComment.id,
-      #           body: output
-      #         })
-      #       } else {
-      #         github.rest.issues.createComment({
-      #           issue_number: context.issue.number,
-      #           owner: context.repo.owner,
-      #           repo: context.repo.repo,
-      #           body: output
-      #         })
-      #       }
+            const output = `
+              ${ commentMark }
+              ## **Source: _${source}_**
+              #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
+              \`\`\`hcl\n
+              ${process.env.PLAN}
+              \`\`\`
+              *Pusher: @${{ github.actor }}*
+              _Updated at: ${datetime}_
+            `;
+
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
