@@ -57,7 +57,6 @@ jobs:
           PLAN: "src/${{ matrix.dir }}\n"
           DIR: "${{ matrix.dir }}"
         run: |
-          mkdir outputs
           echo $PLAN > outputs/$DIR.txt
 
       - uses: actions/upload-artifact@v4
@@ -93,6 +92,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: output
+          path: outputs
 
       - name: 'plans'
         run: |
