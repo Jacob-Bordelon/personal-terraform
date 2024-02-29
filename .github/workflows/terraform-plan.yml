@@ -6,6 +6,12 @@ on:
       - opened
       - synchronize
 
+permissions:
+  id-token: write
+  contents: read 
+  pull-requests: write
+  issues: write
+
 jobs:
   terraform-plan:
     runs-on: ubuntu-latest
