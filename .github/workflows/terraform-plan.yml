@@ -101,12 +101,16 @@ jobs:
       - name: 'plans'
         id: plans
         run: |
-          echo "output=$(cat output.txt)" >> $GITHUB_OUTPUT
+          {
+            echo "RESP<<EOF"
+            cat output.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "${{ steps.plans.outputs.output }}"
+          PLAN: "${{ steps.plans.outputs.RESP }}"
           DIR: "${{ matrix.dir }}"
         with:
           github-token: ${{ github.token }}
