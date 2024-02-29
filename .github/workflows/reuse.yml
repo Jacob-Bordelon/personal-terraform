@@ -8,7 +8,23 @@ on:
         type: string
 
 jobs:
+  tofu-init:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pwd
+        working-directory: ${{ inputs.working-dir }}
+
   tofu-plan:
+    needs: [tofu-init]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pwd
+        working-directory: ${{ inputs.working-dir }}
+
+  tofu-apply:
+    needs: [tofu-init, tofu-plan]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
