@@ -13,11 +13,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
       - name: tofu init
-        working_directory: src/one
+        working-directory: src/one
         run: pwd
         # run: tofu init
       - name: tofu plan
-        working_directory: src/one
+        working-directory: src/one
         run: pwd
         # run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
         id: plan
