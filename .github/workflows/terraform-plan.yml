@@ -39,14 +39,19 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans-${{ matrix.dir }}: ${{ steps.store.outputs.name}}
+      plans-${{ matrix.dir }}: ${{ steps.store.outputs.name }}
     steps:
       - uses: actions/checkout@v4
-      - name: 'store'
+      - name: store plan
+        id: store
         env:
-          DIR: "src/${{ matrix.dir }}"
+          PLAN: "src/${{ matrix.dir }}"
         run: |
-          echo "name=$DIR" >> $GITHUB_OUTPUT
+          {
+            echo "JSON_RESPONSE<<EOF"
+            echo $PLAN
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
       #   working-directory: src/${{ matrix.dir }}
@@ -61,12 +66,12 @@ jobs:
       #   id: store
       #   env:
       #     PLAN: "${{ steps.plan.outputs.stdout }}"
-        # run: |
-        #   {
-        #     echo "JSON_RESPONSE<<EOF"
-        #     echo $PLAN
-        #     echo "EOF"
-        #   } >> $GITHUB_OUTPUT
+      #   run: |
+      #     {
+      #       echo "JSON_RESPONSE<<EOF"
+      #       echo $PLAN
+      #       echo "EOF"
+      #     } >> $GITHUB_OUTPUT
 
   push-comment:
     runs-on: ubuntu-latest
