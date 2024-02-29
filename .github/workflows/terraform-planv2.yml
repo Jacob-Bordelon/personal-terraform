@@ -1,4 +1,4 @@
-name: Terraform Plan
+name: Terraform PlanV2
 
 on: 
   issue_comment:
