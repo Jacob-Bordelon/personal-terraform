@@ -50,15 +50,6 @@ jobs:
           DIR: "${{ matrix.dir }}"
         run: |
           echo "endpoint_${{ matrix.dir }}=$PLAN" >> $GITHUB_OUTPUT
-
-          # {
-          #   echo "$DIR<<EOF"
-          #   echo $PLAN
-          #   echo "EOF"
-          # } >> $GITHUB_OUTPUT
-      - name: 'See output'
-        run: |
-          cat $GITHUB_OUTPUT
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
       #   working-directory: src/${{ matrix.dir }}
@@ -86,7 +77,7 @@ jobs:
     steps:
       - name: 'plans'
         run: |
-          echo "${{ needs.terraform-plan.outputs.plans }}"
+          echo "${{ needs }}"
       # - uses: actions/github-script@v6
       #   if: github.event_name == 'pull_request'
       #   env:
