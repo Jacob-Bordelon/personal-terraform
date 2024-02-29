@@ -39,7 +39,7 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans: ${{ steps.store.outputs.* }}
+      plans: ${{ steps.store.outputs.RESP }}
     steps:
       - uses: actions/checkout@v4
       - name: store plan
@@ -49,7 +49,7 @@ jobs:
           DIR: "src/${{ matrix.dir }}"
         run: |
           {
-            echo "$DIR<<EOF"
+            echo "RESP<<EOF"
             echo $PLAN
             echo "EOF"
           } >> $GITHUB_OUTPUT
@@ -80,7 +80,7 @@ jobs:
     steps:
       - name: 'plans'
         env:
-          PLANS: ${{ toJson(needs.terraform-plan.outputs) }}
+          PLANS: ${{ toJson(needs.terraform-plan.outputs.plans) }}
         run: |
           echo $PLANS
       # - uses: actions/github-script@v6
