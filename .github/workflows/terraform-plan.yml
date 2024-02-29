@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: 'store'
         env:
-          DIR: src/${{ matrix.dir }}
+          DIR: "src/${{ matrix.dir }}"
         run: |
           {
             echo "JSON_RESPONSE<<EOF"
