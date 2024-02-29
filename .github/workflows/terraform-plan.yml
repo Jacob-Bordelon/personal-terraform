@@ -40,7 +40,7 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans: ${{ toJson(steps.store.outputs.*) }}
+      plans: ${{ toJson(steps.store.outputs) }}
     steps:
       - uses: actions/checkout@v4
       - name: store plan
@@ -49,11 +49,13 @@ jobs:
           PLAN: "src/${{ matrix.dir }}"
           DIR: "${{ matrix.dir }}"
         run: |
-          {
-            echo "$DIR<<EOF"
-            echo $PLAN
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          echo "endpoint_${{ matrix.dir }}=$PLAN" >> $GITHUB_OUTPUT
+          
+          # {
+          #   echo "$DIR<<EOF"
+          #   echo $PLAN
+          #   echo "EOF"
+          # } >> $GITHUB_OUTPUT
       - name: 'See output'
         run: |
           cat $GITHUB_OUTPUT
