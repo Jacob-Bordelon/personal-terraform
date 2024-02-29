@@ -58,12 +58,14 @@ jobs:
               issue_number: context.issue.number,
             })
 
+            const commentMark = `<!-- opentofu-bot-${ matrix.dir } -->`
+
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('<!-- opentofu-bot -->')
+              return comment.user.type === 'Bot' && comment.body.includes(commentMark)
             })
 
             const output = `
-              <!-- opentofu-bot -->
+              ${ commentMark }
               #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
               \`\`\`hcl\n
               ${process.env.PLAN}
