@@ -43,6 +43,9 @@ jobs:
       plans: ${{ toJson(steps) }}
     steps:
       - uses: actions/checkout@v4
+      - name: 'temp'
+        run: |
+          echo "${{ toJson(steps) }}"
       - name: store plan
         id: store
         env:
