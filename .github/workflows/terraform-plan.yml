@@ -36,6 +36,7 @@ jobs:
     needs: [get-modules]    
     strategy:
       fail-fast: true
+      max-parallel: 1
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
