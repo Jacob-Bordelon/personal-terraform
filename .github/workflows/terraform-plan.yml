@@ -54,6 +54,9 @@ jobs:
             echo $PLAN
             echo "EOF"
           } >> $GITHUB_OUTPUT
+      - name: 'See output'
+        run: |
+          echo "$GITHUB_OUTPUT"
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
       #   working-directory: src/${{ matrix.dir }}
