@@ -60,15 +60,14 @@ jobs:
         id: store
         env:
           PLAN: "src/${{ matrix.dir }}"
-          DIR: "${{ matrix.dir }}"
         run: |
           ls
-          echo $PLAN > outputs/$DIR.txt
+          echo $PLAN > outputs/${{ matrix.dir }}.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: output
-          path: outputs/$DIR.txt
+          path: outputs/${{ matrix.dir }}.txt
           
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
