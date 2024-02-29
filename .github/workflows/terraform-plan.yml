@@ -39,7 +39,7 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans-${{ matrix.dir }}: ${{ steps.store.outputs.name }}
+      plans: ${{ steps.store.outputs.JSON_RESPONSE }}
     steps:
       - uses: actions/checkout@v4
       - name: store plan
