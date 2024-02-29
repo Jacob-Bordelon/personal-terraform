@@ -40,7 +40,7 @@ jobs:
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans_${{ matrix.dir }}: ${{ toJson(steps) }}
+      plans: ${{ toJson(steps) }}
     steps:
       - uses: actions/checkout@v4
       - name: store plan
@@ -49,7 +49,10 @@ jobs:
           PLAN: "src/${{ matrix.dir }}"
           DIR: "${{ matrix.dir }}"
         run: |
-          echo "endpoint_${{ matrix.dir }}=$PLAN" >> $GITHUB_OUTPUT
+          echo "endpoint=$PLAN" >> $GITHUB_OUTPUT
+      - name: 'temp'
+        run: |
+          echo "${{ toJson(steps) }}"
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
       #   working-directory: src/${{ matrix.dir }}
