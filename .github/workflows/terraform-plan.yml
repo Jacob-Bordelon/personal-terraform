@@ -43,6 +43,8 @@ jobs:
         run: tofu init
       - name: tofu plan
         working-directory: src/${{ matrix.dir }}
+        env:
+          TF_IN_AUTOMATION: true
         run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
         id: plan
       - uses: actions/github-script@v6
@@ -74,7 +76,7 @@ jobs:
               \`\`\`hcl\n
               ${process.env.PLAN}
               \`\`\`
-              *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*
+              *Pusher: @${{ github.actor }}*
               _Updated at: ${datetime}_
             `;
 
