@@ -23,6 +23,11 @@ jobs:
       directories: ${{ steps.ls.outputs.directories }}
     steps:
       - uses: actions/checkout@v4
+      - run: mkdir outputs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: outputs
 
       - id: ls
         env:
@@ -46,17 +51,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      # - uses: actions/download-artifact@v4
-      #   with:
-      #     name: output
-      #     path: outputs
+      - uses: actions/download-artifact@v4
+        with:
+          name: output
+          path: outputs
 
       - name: store plan
         id: store
         env:
-          PLAN: "src/${{ matrix.dir }}\n"
+          PLAN: "src/${{ matrix.dir }}"
           DIR: "${{ matrix.dir }}"
         run: |
+          ls
           echo $PLAN > outputs/$DIR.txt
 
       - uses: actions/upload-artifact@v4
