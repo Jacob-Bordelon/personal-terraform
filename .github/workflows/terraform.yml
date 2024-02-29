@@ -6,7 +6,7 @@ jobs:
   terraform:
     strategy:
       matrix:
-        dir: [one, two three]
+        dir: [one, two, three]
     uses: ./.github/workflows/reuse.yml
     with:
       working-dir: src/${{ matrix.dir }}
