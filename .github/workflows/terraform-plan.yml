@@ -46,11 +46,7 @@ jobs:
         env:
           DIR: "src/${{ matrix.dir }}"
         run: |
-          {
-            echo "JSON_RESPONSE<<EOF"
-            echo $DIR
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          echo "name=$DIR" >> $GITHUB_OUTPUT
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
       #   working-directory: src/${{ matrix.dir }}
