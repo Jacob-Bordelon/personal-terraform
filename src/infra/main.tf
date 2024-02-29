@@ -9,17 +9,13 @@ variable repo_fullname {
   type        = string
 }
 
-variable env_name {
-  type        = string
-}
-
 data "github_repository" "test" {
   full_name = "${var.repo_fullname}"
 }
  
 resource "github_repository_environment" "test" {
   repository     = data.github_repository.test.name
-  environment    = "production"
+  environment    = "development"
   prevent_self_review = false
 
   reviewers {

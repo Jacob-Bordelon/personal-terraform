@@ -1,13 +1,10 @@
-name: 'Plan'
+name: Terraform Plan
 
 on: 
   pull_request:
     types:
       - opened
-      - closed
       - synchronize
-    # paths-ignore:
-    #   - '.github/**'
 
 permissions:
   id-token: write
@@ -15,42 +12,106 @@ permissions:
   pull-requests: write
   issues: write
 
-env:
-  TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
-  TF_VAR_env_name: 'production'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  tofu-init:
+  get-modules:
     runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.ls.outputs.directories }}
     steps:
       - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-      - run: tofu init
-  
-  tofu-plan:
-    runs-on: ubuntu-latest
-    needs: [tofu-init]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-      - run: tofu init
-      - name: 'Tofu Plan'
-        id: plan
+      - id: ls
         env:
-          TF_VAR_repo_fullname: 'Jacob-Bordelon/personal-terraform'
-          TF_VAR_env_name: 'production'
-        run: tofu plan -no-color 
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          temp=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
+          # temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
+          echo "directories=$temp" >> $GITHUB_OUTPUT
+      
+  terraform-plan:
+    runs-on: ubuntu-latest
+    needs: [get-modules]    
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
+    outputs:
+      plans: ${{ toJson(steps) }}
 
-      # - name: Upload Plan to Artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: tofu-plan
-      #     path: plan.tfplan
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: output
+
+      - name: store plan
+        id: store
+        env:
+          SRC: "src/${{ matrix.dir }}"
+          PLAN: "src/${{ matrix.dir }}"
+        run: |
+          {
+            echo $SRC
+            echo "\`\`\`hcl"
+            echo $PLAN
+            echo "\`\`\`"
+            echo ""
+          } >> output.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: output.txt
+          overwrite: true
+          
+      # - uses: opentofu/setup-opentofu@v1
+      # - name: tofu init
+      #   working-directory: src/${{ matrix.dir }}
+      #   run: tofu init
+      # - name: tofu plan
+      #   working-directory: src/${{ matrix.dir }}
+      #   env:
+      #     TF_IN_AUTOMATION: true
+      #   run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
+      #   id: plan
+      # - name: store plan
+      #   id: store
+      #   env:
+      #     PLAN: "${{ steps.plan.outputs.stdout }}"
+        # run: |
+        #   {
+        #     echo "JSON_RESPONSE<<EOF"
+        #     echo $PLAN
+        #     echo "EOF"
+        #   } >> $GITHUB_OUTPUT
+
+  push-comment:
+    runs-on: ubuntu-latest
+    needs: [terraform-plan]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: output
+
+      - name: 'plans'
+        id: plans
+        run: |
+          {
+            echo "RESP<<EOF"
+            cat output.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "${{ steps.plan.outputs.stdout }}"
+          PLAN: "${{ steps.plans.outputs.RESP }}"
+          DIR: "${{ matrix.dir }}"
         with:
           github-token: ${{ github.token }}
           script: |
@@ -60,17 +121,23 @@ jobs:
               issue_number: context.issue.number,
             })
 
+            const datetime = new Date().toLocaleString()
+            const source = process.env.DIR
+            const commentMark = `<!-- opentofu-bot-${source} -->`
+
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('<!-- opentofu-bot -->')
+              return comment.user.type === 'Bot' && comment.body.includes(commentMark)
             })
 
             const output = `
-              <!-- opentofu-bot -->
+              ${ commentMark }
+              ## **Source: _${source}_**
               #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
-              \`\`\`hcl\n
+              
               ${process.env.PLAN}
-              \`\`\`
-              *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*
+              
+              *Pusher: @${{ github.actor }}*
+              _Updated at: ${datetime}_
             `;
 
             // 3. If we have a comment, update it, otherwise create a new one
@@ -89,57 +156,3 @@ jobs:
                 body: output
               })
             }
-  
-  tofu-apply:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    needs: [tofu-init, tofu-plan]
-    environment: 'staging'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-      - run: tofu init
-      - run: tofu plan -no-color 
-      - name: 'Tofu Apply'
-        run: echo "Apply Changes"
-
-
-  # comment:
-  #   needs: [tofu-init, tofu-plan]
-  #   runs-on: ubuntu-latest
-    # steps:
-    #   - name: Download Plan
-    #     uses: actions/download-artifact@v4
-    #     with:
-    #       name: tofu-plan
-
-  #     - name: Set plan variable in output
-  #       id: plan
-  #       run: |
-  #         {
-  #           echo 'PLAN<<EOF'
-  #           cat tofu-plan.txt
-  #           echo EOF
-  #         } >> "$GITHUB_OUTPUT"
-
-  #     - name: Find Comment
-  #       uses: peter-evans/find-comment@v3
-  #       continue-on-error: true
-  #       id: fc
-  #       with:
-  #         issue-number: ${{ github.event.pull_request.number }}
-  #         comment-author: 'github-actions[bot]'
-  #         body-includes: <!-- opentofu-bot -->
-
-  #     - name: Create or Update comment
-  #       uses: peter-evans/create-or-update-comment@v4
-  #       with:
-  #         comment-id: ${{ steps.fc.outputs.comment-id }}
-  #         issue-number: ${{ github.event.pull_request.number }}
-  #         edit-mode: replace
-  #         body: |
-  #           <!-- opentofu-bot -->
-  #           Terraform Plan
-  #           ```hcl
-  #             ${{ steps.plan.outputs.PLAN }}
-  #           ```
