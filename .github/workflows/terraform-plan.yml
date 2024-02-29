@@ -36,20 +36,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: [get-modules]    
     strategy:
+      fail-fast: true
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     outputs:
-      plans: ${{ steps.store.outputs.RESP }}
+      plans: ${{ steps.store.outputs.* }}
     steps:
       - uses: actions/checkout@v4
       - name: store plan
         id: store
         env:
           PLAN: "src/${{ matrix.dir }}"
-          DIR: "src/${{ matrix.dir }}"
+          DIR: "${{ matrix.dir }}"
         run: |
           {
-            echo "RESP<<EOF"
+            echo "$DIR<<EOF"
             echo $PLAN
             echo "EOF"
           } >> $GITHUB_OUTPUT
