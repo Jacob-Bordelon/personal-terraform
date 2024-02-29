@@ -3,15 +3,10 @@ name: 'Initalizalize multiple Modules'
 on: pull_request
 
 jobs:
-  job1:
+  terraform:
     runs-on: ubuntu-latest
     steps:
-      - run: ls
-      - run: touch file.txt
-      - run: ls
+      - uses: ./.github/workflows/reuse.yml
+        with:
+          working-dir: ./src/one
 
-  job2:
-    runs-on: ubuntu-latest
-    needs: [job1]
-    steps:
-      - run: ls
