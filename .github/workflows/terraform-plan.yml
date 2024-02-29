@@ -24,6 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: ls
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           temp=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
           # temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
