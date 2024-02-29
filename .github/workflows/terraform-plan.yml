@@ -23,11 +23,6 @@ jobs:
       directories: ${{ steps.ls.outputs.directories }}
     steps:
       - uses: actions/checkout@v4
-      - run: touch taco.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: output
-          path: taco.txt
 
       - id: ls
         env:
@@ -51,33 +46,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: output
-
-      - name: 'temp'
-        run: |
-          ls
-          cat taco.txt
-
       - name: store plan
         id: store
         env:
           PLAN: "src/${{ matrix.dir }}\n"
           DIR: "${{ matrix.dir }}"
         run: |
-          echo $PLAN >> taco.txt
-
-      - name: 'temp'
-        run: |
-          ls
-          cat taco.txt
+          echo $PLAN >> outputs/$DIR.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: output
-          path: taco.txt
+          path: outputs/$DIR.txt
           
       # - uses: opentofu/setup-opentofu@v1
       # - name: tofu init
@@ -104,9 +84,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [terraform-plan]
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: output
+
       - name: 'plans'
         run: |
-          echo "${{ toJson(needs) }}"
+          ls
       # - uses: actions/github-script@v6
       #   if: github.event_name == 'pull_request'
       #   env:
