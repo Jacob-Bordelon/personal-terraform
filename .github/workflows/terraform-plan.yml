@@ -94,7 +94,7 @@ jobs:
 
       - name: 'plans'
         run: |
-          cat outputs.txt
+          ls
       # - uses: actions/github-script@v6
       #   if: github.event_name == 'pull_request'
       #   env:
