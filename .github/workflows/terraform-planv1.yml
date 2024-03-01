@@ -28,7 +28,10 @@ jobs:
     needs: [get-modules]    
     steps:
       - uses: actions/checkout@v4
-      - run: ls
+      - name: tofu init
+        run: pwd
+      - name: tofu plan
+        run: pwd
 
 # jobs:
 #   get-modules:
