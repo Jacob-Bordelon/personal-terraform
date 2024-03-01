@@ -27,8 +27,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          temp=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
-          # temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
+          # temp=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
+          temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
           echo "directories=$temp" >> $GITHUB_OUTPUT
       
   terraform-plan:
@@ -44,12 +44,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+
       - uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: output
 
-      - uses: opentofu/setup-opentofu@v1
       - name: tofu init
         working-directory: src/${{ matrix.dir }}
         run: tofu init
@@ -72,7 +73,6 @@ jobs:
             echo "\`\`\`"
             echo ""
           } >> output.txt
-
 
       - uses: actions/upload-artifact@v4
         with:
