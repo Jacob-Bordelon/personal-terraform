@@ -42,7 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
-      
+
       - name: tofu init
         working-directory: src/${{ matrix.dir }}
         run: tofu init
@@ -64,7 +64,7 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       - uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
+        # if: github.event_name == 'pull_request'
         env:
           PLAN: "${{ steps.plans.outputs.RESP }}"
           DIR: "${{ matrix.dir }}"
