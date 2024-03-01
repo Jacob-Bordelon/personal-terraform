@@ -12,6 +12,7 @@ variable repo_fullname {
 data "github_repository" "test" {
   full_name = "${var.repo_fullname}"
 }
+
  
 resource "github_repository_environment" "test" {
   repository     = data.github_repository.test.name
