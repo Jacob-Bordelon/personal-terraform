@@ -1,10 +1,6 @@
 name: Terraform PlanV1
 
-on: 
-  pull_request:
-    types:
-      - opened
-      - synchronize
+on: pull_request
 
 permissions:
   id-token: write
