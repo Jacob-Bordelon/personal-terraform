@@ -13,15 +13,15 @@ permissions:
   issues: write
 
 jobs:
-  get-modules-1:
+  get-modules:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: pwd
 
-  terraform-plan-1:
+  terraform-plan:
     runs-on: ubuntu-latest
-    needs: [get-modules-1]
+    needs: [get-modules]
     steps:
       - uses: actions/checkout@v4
       - name: tofu init
