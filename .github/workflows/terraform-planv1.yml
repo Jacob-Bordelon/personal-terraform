@@ -18,13 +18,13 @@ concurrency:
 jobs:
   get-modules:
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/version-1') }}
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu:latest'
     steps:
       - uses: actions/checkout@v4
       - run: ls
 
   terraform-plan:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu:latest'
     needs: [get-modules]    
     steps:
       - uses: actions/checkout@v4
