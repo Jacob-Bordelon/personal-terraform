@@ -81,7 +81,12 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
       - run: |
-          ls -l
+          {
+            echo "FILE"
+            cat plan-*
+            echo "EOF"
+          }
+          
       
   #     - name: 'plans'
   #       id: plans
