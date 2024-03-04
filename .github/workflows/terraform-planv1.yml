@@ -50,17 +50,17 @@ jobs:
 
       - name: tofu plan
         working-directory: src/${{ matrix.dir }}
+        id: plan
         env:
           TF_IN_AUTOMATION: true
         run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
-        id: plan
 
       - name: store plan
         id: store
         env:
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
-          echo $PLAN >> output.txt
+          echo $PLAN > output.txt
 
       - uses: actions/upload-artifact@v4
         with:
