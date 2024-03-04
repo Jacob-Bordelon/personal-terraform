@@ -80,14 +80,14 @@ jobs:
           name: plan-${{ matrix.dir }}
           path: output.txt
           
-  # push-comment:
-  #   runs-on: ubuntu-latest
-  #   needs: [terraform-plan]
-  #   steps:
-  #     - uses: actions/download-artifact@v4
-  #       with:
-  #         name: output
-
+  push-comment:
+    runs-on: ubuntu-latest
+    needs: [terraform-plan]
+    steps:
+      - uses: actions/download-artifact@v4
+      - run: |
+        ls -l
+      
   #     - name: 'plans'
   #       id: plans
   #       run: |
