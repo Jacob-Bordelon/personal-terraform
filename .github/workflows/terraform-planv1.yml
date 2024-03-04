@@ -61,6 +61,7 @@ jobs:
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
           echo $PLAN > output.txt
+          cat output.txt
 
       - uses: actions/upload-artifact@v4
         with:
