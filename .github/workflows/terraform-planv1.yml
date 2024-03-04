@@ -63,9 +63,11 @@ jobs:
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
           {
+            echo "<<EOF"
             echo "\`\`\`"
             echo $PLAN
             echo "\`\`\`"
+            echo "EOF"
           } >> output.txt
 
       - uses: actions/upload-artifact@v4
