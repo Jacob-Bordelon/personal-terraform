@@ -66,11 +66,8 @@ jobs:
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
           {
-            echo $SRC
-            echo "\`\`\`hcl"
             echo $PLAN
-            echo "\`\`\`"
-            echo ""
+            echo "\n\n"
           } >> output.txt
 
       - uses: actions/upload-artifact@v4
