@@ -60,28 +60,28 @@ jobs:
         env:
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
-          echo $PLAN > output.txt
           echo $PLAN
-          cat output.txt
+          # echo $PLAN > output.txt
+          # cat output.txt
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: plan-${{ matrix.dir }}
-          path: output.txt
+  #     - uses: actions/upload-artifact@v4
+  #       with:
+  #         name: plan-${{ matrix.dir }}
+  #         path: output.txt
           
-  push-comment:
-    runs-on: ubuntu-latest
-    needs: [terraform-plan]
-    steps:
-      - uses: actions/download-artifact@v4
-      - run: |
-          {
-            for file in plan-*/output.txt; do
-                echo "<<EOF"
-                cat "$file"
-                echo "EOF"
-            done
-          }
+  # push-comment:
+  #   runs-on: ubuntu-latest
+  #   needs: [terraform-plan]
+  #   steps:
+  #     - uses: actions/download-artifact@v4
+  #     - run: |
+  #         {
+  #           for file in plan-*/output.txt; do
+  #               echo "<<EOF"
+  #               cat "$file"
+  #               echo "EOF"
+  #           done
+  #         }
           
       
   #     - name: 'plans'
