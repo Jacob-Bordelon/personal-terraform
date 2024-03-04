@@ -83,7 +83,7 @@ jobs:
       - run: |
           {
             echo "FILE"
-            cat plan-*
+            ls plan-*
             echo "EOF"
           }
           
