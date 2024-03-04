@@ -90,7 +90,7 @@ jobs:
         # if: github.event_name == 'pull_request'
         env:
           PLAN: "${{ steps.plans.outputs.RESP }}"
-          DIR: "${{ matrix.dir }}"
+          DIR: "all-plans"
         with:
           github-token: ${{ github.token }}
           script: |
