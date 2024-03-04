@@ -67,19 +67,18 @@ jobs:
           SRC: "src/${{ matrix.dir }}"
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
-          touch $NAME.txt
           {
             echo "\`\`\`"
             echo $PLAN
             echo "\`\`\`"
-          } >> $NAME.txt
+          } >> output.txt
 
       - uses: actions/upload-artifact@v4
         env:
           NAME: "${{ matrix.dir }}"
         with:
-          name: $NAME
-          path: $NAME.txt
+          name: plan-${{ matrix.dir }}
+          path: output.txt
           
   # push-comment:
   #   runs-on: ubuntu-latest
