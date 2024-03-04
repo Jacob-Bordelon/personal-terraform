@@ -58,7 +58,7 @@ jobs:
       - name: Check Output
         env:
           PLAN: "${{ steps.plan.outputs.stdout }}"
-        run: echo $PLAN
+        run: echo "$PLAN"
 
       - name: store plan
         id: store
