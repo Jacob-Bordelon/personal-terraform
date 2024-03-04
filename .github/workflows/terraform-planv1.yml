@@ -1,0 +1,137 @@
+name: Terraform PlanV1
+
+# on: 
+#   pull_request:
+#     types:
+#       - opened
+#       - synchronize
+
+on: 
+  issue_comment:
+    types:
+      - created
+
+permissions:
+  id-token: write
+  contents: read 
+  pull-requests: write
+  issues: write
+
+jobs:
+  get-modules:
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/version-1') }}
+    runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.ls.outputs.directories }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: ls
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # temp=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
+          temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
+          echo "directories=$temp" >> $GITHUB_OUTPUT
+      
+  terraform-plan:
+    runs-on: ubuntu-latest
+    needs: [get-modules]    
+    strategy:
+      fail-fast: true
+      matrix:
+        dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+
+      - name: tofu init
+        working-directory: src/${{ matrix.dir }}
+        run: tofu init
+
+      - name: tofu plan
+        working-directory: src/${{ matrix.dir }}
+        id: plan
+        env:
+          TF_IN_AUTOMATION: true
+        run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
+      
+      - name: Check Output
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        run: echo "$PLAN"
+
+      - name: store plan
+        id: store
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        run: |
+          echo "$PLAN" > output.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plan-${{ matrix.dir }}
+          path: output.txt
+          
+  push-comment:
+    runs-on: ubuntu-latest
+    needs: [terraform-plan]
+    steps:
+      - uses: actions/download-artifact@v4
+      - run: |
+          {
+            echo "RESP<<EOF"
+            for file in plan-*/output.txt; do
+                dirname=$(dirname "$file")
+                echo "Module: $dirname"
+                echo "\`\`\`hcl"
+                cat $file
+                echo "\`\`\`"
+            done
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+        id: plans
+
+      - uses: actions/github-script@v6
+        # if: github.event_name == 'pull_request'
+        env:
+          PLAN: "${{ steps.plans.outputs.RESP }}"
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+
+            const datetime = new Date().toLocaleString()
+            const commentMark = `<!-- opentofu-bot-all-plans -->`
+
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes(commentMark)
+            })
+
+            const output = `
+              ${ commentMark }
+
+              ${process.env.PLAN}
+              *Pusher: @${{ github.actor }}*
+              _Updated at: ${datetime}_
+            `;
+
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }

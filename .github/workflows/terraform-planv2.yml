@@ -1,10 +1,15 @@
-name: Terraform Plan
+name: Terraform PlanV2
+
+# on: 
+#   pull_request:
+#     types:
+#       - opened
+#       - synchronize
 
 on: 
-  pull_request:
+  issue_comment:
     types:
-      - opened
-      - synchronize
+      - created
 
 permissions:
   id-token: write
@@ -12,12 +17,9 @@ permissions:
   pull-requests: write
   issues: write
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   get-modules:
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/version-2') }}
     runs-on: ubuntu-latest
     outputs:
       directories: ${{ steps.ls.outputs.directories }}
@@ -27,8 +29,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          temp=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
-          # temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
+          # temp=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | grep '^src/' | awk -F'/' '{if (NF>2) print $2; else print "/"}' | uniq | jq -R -s -c 'split("\n")[:-1]')
+          temp=$(ls src | jq -R -s -c 'split("\n")[:-1]')
           echo "directories=$temp" >> $GITHUB_OUTPUT
       
   terraform-plan:
@@ -36,81 +38,33 @@ jobs:
     needs: [get-modules]    
     strategy:
       fail-fast: true
-      max-parallel: 1
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
-    outputs:
-      plans: ${{ toJson(steps) }}
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: output
+      - uses: opentofu/setup-opentofu@v1
 
-      - name: store plan
-        id: store
+      - name: tofu init
+        working-directory: src/${{ matrix.dir }}
+        run: tofu init
+
+      - name: tofu plan
+        working-directory: src/${{ matrix.dir }}
+        id: plan
         env:
-          SRC: "src/${{ matrix.dir }}"
-          PLAN: "src/${{ matrix.dir }}"
-        run: |
-          {
-            echo $SRC
-            echo "\`\`\`hcl"
-            echo $PLAN
-            echo "\`\`\`"
-            echo ""
-          } >> output.txt
+          TF_IN_AUTOMATION: true
+        run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: output
-          path: output.txt
-          overwrite: true
-          
-      # - uses: opentofu/setup-opentofu@v1
-      # - name: tofu init
-      #   working-directory: src/${{ matrix.dir }}
-      #   run: tofu init
-      # - name: tofu plan
-      #   working-directory: src/${{ matrix.dir }}
-      #   env:
-      #     TF_IN_AUTOMATION: true
-      #   run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
-      #   id: plan
-      # - name: store plan
-      #   id: store
-      #   env:
-      #     PLAN: "${{ steps.plan.outputs.stdout }}"
-        # run: |
-        #   {
-        #     echo "JSON_RESPONSE<<EOF"
-        #     echo $PLAN
-        #     echo "EOF"
-        #   } >> $GITHUB_OUTPUT
-
-  push-comment:
-    runs-on: ubuntu-latest
-    needs: [terraform-plan]
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: output
-
-      - name: 'plans'
-        id: plans
-        run: |
-          {
-            echo "RESP<<EOF"
-            cat output.txt
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+      - name: Check Output
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        run: echo $PLAN
 
       - uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
+        # if: github.event_name == 'pull_request'
         env:
-          PLAN: "${{ steps.plans.outputs.RESP }}"
+          PLAN: "${{ steps.plan.outputs.stdout }}"
           DIR: "${{ matrix.dir }}"
         with:
           github-token: ${{ github.token }}
@@ -134,7 +88,9 @@ jobs:
               ## **Source: _${source}_**
               #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
               
+              \`\`\`hcl
               ${process.env.PLAN}
+              \`\`\`
               
               *Pusher: @${{ github.actor }}*
               _Updated at: ${datetime}_
