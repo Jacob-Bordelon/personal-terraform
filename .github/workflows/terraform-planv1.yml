@@ -63,7 +63,7 @@ jobs:
         id: store
         env:
           SRC: "src/${{ matrix.dir }}"
-          PLAN: "${{ steps.plan.outputs.stdout }}"
+          PLAN: "${{ join(steps.plan.outputs.stdout, "\n") }}"
         run: |
           {
             echo $SRC
