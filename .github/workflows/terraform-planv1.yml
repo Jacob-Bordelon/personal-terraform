@@ -38,30 +38,32 @@ jobs:
     needs: [get-modules]    
     strategy:
       fail-fast: true
-      max-parallel: 1
       matrix:
         dir: ${{ fromJson(needs.get-modules.outputs.directories) }}
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
 
-      - uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: output
+      # - uses: actions/download-artifact@v4
+      #   continue-on-error: true
+      #   with:
+      #     name: output
 
       - name: tofu init
         working-directory: src/${{ matrix.dir }}
         run: tofu init
+
       - name: tofu plan
         working-directory: src/${{ matrix.dir }}
         env:
           TF_IN_AUTOMATION: true
         run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
         id: plan
+
       - name: store plan
         id: store
         env:
+          NAME: "${{ matrix.dir }}"
           SRC: "src/${{ matrix.dir }}"
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
@@ -69,78 +71,78 @@ jobs:
             echo "\`\`\`"
             echo $PLAN
             echo "\`\`\`"
-            echo "\n\n"
-          } >> output.txt
+          } >> $NAME.txt
 
       - uses: actions/upload-artifact@v4
-        with:
-          name: output
-          path: output.txt
-          overwrite: true
-          
-  push-comment:
-    runs-on: ubuntu-latest
-    needs: [terraform-plan]
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: output
-
-      - name: 'plans'
-        id: plans
-        run: |
-          {
-            echo "RESP<<EOF"
-            cat output.txt
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
-
-      - uses: actions/github-script@v6
-        # if: github.event_name == 'pull_request'
         env:
-          PLAN: "${{ steps.plans.outputs.RESP }}"
-          DIR: "${{ matrix.dir }}"
+          NAME: "${{ matrix.dir }}"
         with:
-          github-token: ${{ github.token }}
-          script: |
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            })
+          name: $NAME
+          path: $NAME.txt
+          
+  # push-comment:
+  #   runs-on: ubuntu-latest
+  #   needs: [terraform-plan]
+  #   steps:
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: output
 
-            const datetime = new Date().toLocaleString()
-            const source = process.env.DIR
-            const commentMark = `<!-- opentofu-bot-${source} -->`
+  #     - name: 'plans'
+  #       id: plans
+  #       run: |
+  #         {
+  #           echo "RESP<<EOF"
+  #           cat output.txt
+  #           echo "EOF"
+  #         } >> $GITHUB_OUTPUT
 
-            const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes(commentMark)
-            })
+  #     - uses: actions/github-script@v6
+  #       # if: github.event_name == 'pull_request'
+  #       env:
+  #         PLAN: "${{ steps.plans.outputs.RESP }}"
+  #         DIR: "${{ matrix.dir }}"
+  #       with:
+  #         github-token: ${{ github.token }}
+  #         script: |
+  #           const { data: comments } = await github.rest.issues.listComments({
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             issue_number: context.issue.number,
+  #           })
 
-            const output = `
-              ${ commentMark }
-              ## **Source: _${source}_**
-              #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
+  #           const datetime = new Date().toLocaleString()
+  #           const source = process.env.DIR
+  #           const commentMark = `<!-- opentofu-bot-${source} -->`
+
+  #           const botComment = comments.find(comment => {
+  #             return comment.user.type === 'Bot' && comment.body.includes(commentMark)
+  #           })
+
+  #           const output = `
+  #             ${ commentMark }
+  #             ## **Source: _${source}_**
+  #             #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
               
-              ${process.env.PLAN}
+  #             ${process.env.PLAN}
               
-              *Pusher: @${{ github.actor }}*
-              _Updated at: ${datetime}_
-            `;
+  #             *Pusher: @${{ github.actor }}*
+  #             _Updated at: ${datetime}_
+  #           `;
 
-            // 3. If we have a comment, update it, otherwise create a new one
-            if (botComment) {
-              github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: output
-              })
-            } else {
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: output
-              })
-            }
+  #           // 3. If we have a comment, update it, otherwise create a new one
+  #           if (botComment) {
+  #             github.rest.issues.updateComment({
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               comment_id: botComment.id,
+  #               body: output
+  #             })
+  #           } else {
+  #             github.rest.issues.createComment({
+  #               issue_number: context.issue.number,
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               body: output
+  #             })
+  #           }
