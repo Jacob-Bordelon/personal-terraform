@@ -56,8 +56,9 @@ jobs:
         run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
       
       - name: Check Output
-        run: echo ${{ steps.plan.outputs.stdout }} 
-
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        run: echo $PLAN
 
       - name: store plan
         id: store
