@@ -84,7 +84,7 @@ jobs:
                 dirname=$(dirname "$file")
                 echo "Module: $dirname"
                 echo "\`\`\`hcl"
-                cat "$file"
+                cat $file
                 echo "\`\`\`"
             done
             echo "EOF"
