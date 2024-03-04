@@ -44,11 +44,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
 
-      # - uses: actions/download-artifact@v4
-      #   continue-on-error: true
-      #   with:
-      #     name: output
-
       - name: tofu init
         working-directory: src/${{ matrix.dir }}
         run: tofu init
@@ -86,7 +81,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
       - run: |
-        ls -l
+          ls -l
       
   #     - name: 'plans'
   #       id: plans
