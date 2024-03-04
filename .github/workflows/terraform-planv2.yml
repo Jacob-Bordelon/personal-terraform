@@ -66,9 +66,9 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       - uses: actions/github-script@v6
-        # if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request'
         env:
-          PLAN: "${{ steps.plans.outputs.RESP }}"
+          PLAN: "${{ steps.store.outputs.RESP }}"
           DIR: "${{ matrix.dir }}"
         with:
           github-token: ${{ github.token }}
