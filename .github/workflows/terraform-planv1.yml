@@ -60,85 +60,77 @@ jobs:
         env:
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
-          echo $PLAN
-          # echo $PLAN > output.txt
-          # cat output.txt
+          echo $PLAN > output.txt
 
-  #     - uses: actions/upload-artifact@v4
-  #       with:
-  #         name: plan-${{ matrix.dir }}
-  #         path: output.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plan-${{ matrix.dir }}
+          path: output.txt
           
-  # push-comment:
-  #   runs-on: ubuntu-latest
-  #   needs: [terraform-plan]
-  #   steps:
-  #     - uses: actions/download-artifact@v4
-  #     - run: |
-  #         {
-  #           for file in plan-*/output.txt; do
-  #               echo "<<EOF"
-  #               cat "$file"
-  #               echo "EOF"
-  #           done
-  #         }
-          
-      
-  #     - name: 'plans'
-  #       id: plans
-  #       run: |
-  #         {
-  #           echo "RESP<<EOF"
-  #           cat output.txt
-  #           echo "EOF"
-  #         } >> $GITHUB_OUTPUT
+  push-comment:
+    runs-on: ubuntu-latest
+    needs: [terraform-plan]
+    steps:
+      - uses: actions/download-artifact@v4
+      - run: |
+          {
+            echo "RESP<<EOF"
+            for file in plan-*/output.txt; do
+                dirname=$(dirname "$file")
+                echo "Module: $dirname"
+                echo "\`\`\`hcl"
+                cat "$file"
+                echo "\`\`\`"
+            done
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
-  #     - uses: actions/github-script@v6
-  #       # if: github.event_name == 'pull_request'
-  #       env:
-  #         PLAN: "${{ steps.plans.outputs.RESP }}"
-  #         DIR: "${{ matrix.dir }}"
-  #       with:
-  #         github-token: ${{ github.token }}
-  #         script: |
-  #           const { data: comments } = await github.rest.issues.listComments({
-  #             owner: context.repo.owner,
-  #             repo: context.repo.repo,
-  #             issue_number: context.issue.number,
-  #           })
+      - uses: actions/github-script@v6
+        # if: github.event_name == 'pull_request'
+        env:
+          PLAN: "${{ steps.plans.outputs.RESP }}"
+          DIR: "${{ matrix.dir }}"
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
 
-  #           const datetime = new Date().toLocaleString()
-  #           const source = process.env.DIR
-  #           const commentMark = `<!-- opentofu-bot-${source} -->`
+            const datetime = new Date().toLocaleString()
+            const source = process.env.DIR
+            const commentMark = `<!-- opentofu-bot-${source} -->`
 
-  #           const botComment = comments.find(comment => {
-  #             return comment.user.type === 'Bot' && comment.body.includes(commentMark)
-  #           })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes(commentMark)
+            })
 
-  #           const output = `
-  #             ${ commentMark }
-  #             ## **Source: _${source}_**
-  #             #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
+            const output = `
+              ${ commentMark }
+              ## **Source: _${source}_**
+              #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
               
-  #             ${process.env.PLAN}
+              ${process.env.PLAN}
               
-  #             *Pusher: @${{ github.actor }}*
-  #             _Updated at: ${datetime}_
-  #           `;
+              *Pusher: @${{ github.actor }}*
+              _Updated at: ${datetime}_
+            `;
 
-  #           // 3. If we have a comment, update it, otherwise create a new one
-  #           if (botComment) {
-  #             github.rest.issues.updateComment({
-  #               owner: context.repo.owner,
-  #               repo: context.repo.repo,
-  #               comment_id: botComment.id,
-  #               body: output
-  #             })
-  #           } else {
-  #             github.rest.issues.createComment({
-  #               issue_number: context.issue.number,
-  #               owner: context.repo.owner,
-  #               repo: context.repo.repo,
-  #               body: output
-  #             })
-  #           }
+            // 3. If we have a comment, update it, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
