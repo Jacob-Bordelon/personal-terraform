@@ -58,21 +58,11 @@ jobs:
       - name: store plan
         id: store
         env:
-          NAME: "${{ matrix.dir }}"
-          SRC: "src/${{ matrix.dir }}"
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
-          {
-            echo "<<EOF"
-            echo "\`\`\`"
-            echo $PLAN
-            echo "\`\`\`"
-            echo "EOF"
-          } >> output.txt
+          echo $PLAN >> output.txt
 
       - uses: actions/upload-artifact@v4
-        env:
-          NAME: "${{ matrix.dir }}"
         with:
           name: plan-${{ matrix.dir }}
           path: output.txt
