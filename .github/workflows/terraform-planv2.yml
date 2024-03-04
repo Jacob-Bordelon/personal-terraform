@@ -48,27 +48,22 @@ jobs:
       - name: tofu init
         working-directory: src/${{ matrix.dir }}
         run: tofu init
+
       - name: tofu plan
         working-directory: src/${{ matrix.dir }}
+        id: plan
         env:
           TF_IN_AUTOMATION: true
         run: tofu plan -no-color -var="repo_fullname=Jacob-Bordelon/personal-terraform"
-        id: plan
-      # - name: store plan
-      #   id: store
-      #   env:
-      #     PLAN: "${{ steps.plan.outputs.stdout }}"
-      #   run: |
-      #     {
-      #       echo "RESP<<EOF"
-      #       echo $PLAN
-      #       echo "EOF"
-      #     } >> $GITHUB_OUTPUT
+
+      - name: Check Output
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        run: echo $PLAN
 
       - uses: actions/github-script@v6
         # if: github.event_name == 'pull_request'
         env:
-          # PLAN: "${{ steps.store.outputs.RESP }}"
           PLAN: "${{ steps.plan.outputs.stdout }}"
           DIR: "${{ matrix.dir }}"
         with:
