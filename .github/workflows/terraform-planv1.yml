@@ -89,12 +89,12 @@ jobs:
             done
             echo "EOF"
           } >> $GITHUB_OUTPUT
+        id: plans
 
       - uses: actions/github-script@v6
         # if: github.event_name == 'pull_request'
         env:
           PLAN: "${{ steps.plans.outputs.RESP }}"
-          DIR: "all-plans"
         with:
           github-token: ${{ github.token }}
           script: |
@@ -105,8 +105,7 @@ jobs:
             })
 
             const datetime = new Date().toLocaleString()
-            const source = process.env.DIR
-            const commentMark = `<!-- opentofu-bot-${source} -->`
+            const commentMark = `<!-- opentofu-bot-all-plans -->`
 
             const botComment = comments.find(comment => {
               return comment.user.type === 'Bot' && comment.body.includes(commentMark)
@@ -114,11 +113,8 @@ jobs:
 
             const output = `
               ${ commentMark }
-              ## **Source: _${source}_**
-              #### OpenTofu Plan 📖\`${{ steps.plan.outcome }}\`
-              
+
               ${process.env.PLAN}
-              
               *Pusher: @${{ github.actor }}*
               _Updated at: ${datetime}_
             `;
