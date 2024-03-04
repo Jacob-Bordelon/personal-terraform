@@ -74,9 +74,11 @@ jobs:
       - uses: actions/download-artifact@v4
       - run: |
           {
-            echo "FILE"
-            cat plan-*/output.txt
-            echo "EOF"
+            for file in plan-*/output.txt; do
+                echo "<<EOF"
+                cat "$file"
+                echo "EOF"
+            done
           }
           
       
