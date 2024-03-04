@@ -67,6 +67,7 @@ jobs:
           SRC: "src/${{ matrix.dir }}"
           PLAN: "${{ steps.plan.outputs.stdout }}"
         run: |
+          touch $NAME.txt
           {
             echo "\`\`\`"
             echo $PLAN
